@@ -54,6 +54,13 @@
   .dropzone .dz-text{ font-size:12px; color:var(--text-dim); font-weight:700; }
   .dropzone .dz-text b{ color:var(--teal); }
   .dropzone.has-image{ border-style:solid; border-color:var(--teal); padding:0; }
+  .dropzone.active{ box-shadow:0 0 0 3px rgba(0,212,170,.35); border-color:var(--teal); }
+  .zona-label{ display:flex; align-items:center; justify-content:space-between; }
+  .zona-badge{
+    font-size:10px; font-weight:800; color:var(--teal); background:rgba(0,212,170,.12);
+    padding:3px 8px; border-radius:20px; letter-spacing:.3px; display:none;
+  }
+  .zona-badge.show{ display:inline-block; }
   .dropzone img{ width:100%; height:100%; object-fit:cover; display:block; }
   .dropzone .dz-remove{
     position:absolute; top:8px; right:8px; background:rgba(13,17,23,.85); color:#fff; border:none;
@@ -72,8 +79,8 @@
   <input type="date" id="fecha" required>
   <div class="hint" id="fechaHint"></div>
 
-  <label>Foto 1</label>
-  <div class="dropzone" id="dz1" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path')document.getElementById('input1').click()">
+  <div class="zona-label"><label style="margin:16px 0 6px">Foto 1</label><span class="zona-badge" id="badge1">se pega aquí</span></div>
+  <div class="dropzone" id="dz1" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path'){seleccionarZona(1);document.getElementById('input1').click();}">
     <div class="dz-empty" id="dzEmpty1">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
@@ -82,14 +89,15 @@
   </div>
   <div class="hint">Si es una foto de iPhone y no carga, revisa que esté en formato JPG (Ajustes → Cámara → Formatos → Más compatible).</div>
 
-  <label>Foto 2 (opcional)</label>
-  <div class="dropzone" id="dz2" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path')document.getElementById('input2').click()">
+  <div class="zona-label"><label style="margin:16px 0 6px">Foto 2 (opcional)</label><span class="zona-badge" id="badge2">se pega aquí</span></div>
+  <div class="dropzone" id="dz2" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path'){seleccionarZona(2);document.getElementById('input2').click();}">
     <div class="dz-empty" id="dzEmpty2">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
       <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
     </div>
     <input class="dz-input" type="file" id="input2" accept="image/*">
   </div>
+  <div class="hint">Haz click en el recuadro que quieras llenar antes de pegar (Ctrl+V) — queda marcado con "se pega aquí".</div>
 
   <button id="btnEnviar" onclick="enviar()">Guardar fotos de este domingo</button>
   <div class="msg" id="msg"></div>
@@ -167,31 +175,38 @@
     document.getElementById('input' + n).addEventListener('change', (e) => manejarArchivo(n, e.target.files[0]));
   }
 
+  // ---------- Zona activa: define a cuál de las 2 fotos va un Ctrl+V ----------
+  let zonaActiva = 1;
+  function seleccionarZona(n){
+    zonaActiva = n;
+    [1, 2].forEach(i => {
+      document.getElementById('dz' + i).classList.toggle('active', i === n);
+      document.getElementById('badge' + i).classList.toggle('show', i === n);
+    });
+  }
+  seleccionarZona(1); // Foto 1 activa por defecto al abrir el formulario
+
   [1, 2].forEach(n => {
     const dz = document.getElementById('dz' + n);
     const input = document.getElementById('input' + n);
     input.addEventListener('change', (e) => manejarArchivo(n, e.target.files[0]));
-    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); seleccionarZona(n); });
     dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
     dz.addEventListener('drop', (e) => {
       e.preventDefault(); dz.classList.remove('dragover');
+      seleccionarZona(n);
       if (e.dataTransfer.files && e.dataTransfer.files[0]) manejarArchivo(n, e.dataTransfer.files[0]);
     });
-    // Permite pegar (Ctrl+V) una imagen copiada, si la zona está enfocada/seleccionada con click
-    dz.setAttribute('tabindex', '0');
-    dz.addEventListener('paste', (e) => {
-      const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
-      if (item) manejarArchivo(n, item.getAsFile());
-    });
+    // El botón "✕" también selecciona su zona, para que un pegado posterior reemplace ahí mismo
+    dz.addEventListener('mousedown', () => seleccionarZona(n));
   });
 
-  // Pegar en cualquier parte de la página va a la primera zona vacía (Foto 1 si está libre, si no Foto 2)
+  // Un solo lugar que escucha Ctrl+V en toda la página: siempre va a la zona activa (marcada "se pega aquí")
   window.addEventListener('paste', (e) => {
-    if (document.activeElement && document.activeElement.id && document.activeElement.id.startsWith('dz')) return; // ya lo maneja el listener de la zona
     const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
     if (!item) return;
-    const destino = !estado[1] ? 1 : 2;
-    manejarArchivo(destino, item.getAsFile());
+    e.preventDefault();
+    manejarArchivo(zonaActiva, item.getAsFile());
   });
 
   // ---------- Envío ----------
@@ -205,26 +220,45 @@
     if (!estado[1] && !estado[2]){ msg.className='msg err'; msg.textContent='Agrega al menos una foto.'; return; }
 
     const payload = { fecha: fechaInput.value, foto1: estado[1], foto2: estado[2] };
+    console.log('Enviando fotos para', payload.fecha, '— tamaños (KB):',
+      payload.foto1 ? Math.round(payload.foto1.length/1024) : 0,
+      payload.foto2 ? Math.round(payload.foto2.length/1024) : 0);
 
     btn.disabled = true; btn.textContent = 'Subiendo fotos...';
+    const avisoLento = setTimeout(() => {
+      msg.className = 'msg'; msg.style.display = 'block'; msg.style.color = 'var(--text-dim)';
+      msg.textContent = 'Sigue subiendo… si esto tarda más de 1 minuto, puede que el script necesite volver a autorizar el acceso a Google Drive (avísame).';
+    }, 15000);
     try {
       const res = await fetch(ENDPOINT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' }, // evita preflight CORS con Apps Script
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      const texto = await res.text();
+      console.log('Respuesta cruda del script:', texto);
+      let data;
+      try { data = JSON.parse(texto); }
+      catch(parseErr){
+        throw new Error('El script no devolvió JSON válido (posible pantalla de autorización de Drive). Respuesta: ' + texto.slice(0,200));
+      }
       if (data.status === 'ok'){
         msg.className = 'msg ok';
         msg.textContent = data.action === 'actualizado'
           ? '✓ Fotos actualizadas para el ' + payload.fecha
           : '✓ Fotos guardadas para el ' + payload.fecha;
+        if (data.advertencias && data.advertencias.length){
+          msg.textContent += ' — pero hubo un problema: ' + data.advertencias.join(' / ');
+          msg.className = 'msg err';
+        }
       } else {
         msg.className = 'msg err'; msg.textContent = 'Error: ' + (data.message || 'desconocido');
       }
     } catch(err){
-      msg.className = 'msg err'; msg.textContent = 'Error de conexión: ' + err.message;
+      msg.className = 'msg err'; msg.textContent = 'Error: ' + err.message;
+      console.error(err);
     } finally {
+      clearTimeout(avisoLento);
       btn.disabled = false; btn.textContent = 'Guardar fotos de este domingo';
     }
   }
