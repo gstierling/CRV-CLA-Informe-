@@ -17,25 +17,28 @@
   *{box-sizing:border-box;}
   html{ scroll-behavior:smooth; }
   body{ margin:0; font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); }
+  body::before{
+    content:''; position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size:40px 40px; pointer-events:none; z-index:0;
+  }
+  .topbar, main{ position:relative; z-index:1; }
 
   .topbar{
     position:sticky; top:0; z-index:10; background:rgba(13,17,23,.94); backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--border); padding:14px 20px;
-    display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--border); padding:26px 20px 18px;
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:4px;
   }
-  .brand .eyebrow{ color:var(--orange); font-weight:800; font-size:11px; letter-spacing:1.5px; }
-  .brand .title{ font-weight:900; font-size:15px; }
-  .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .brand-title{ font-weight:900; font-size:clamp(20px,4.5vw,32px); color:var(--orange); letter-spacing:.5px; line-height:1.15; }
+  .brand-sub{ font-weight:800; font-size:clamp(13px,2.5vw,17px); color:var(--text-dim); letter-spacing:3px; margin-top:2px; }
   select{
     background:var(--bg-card); color:var(--text); border:1.5px solid var(--border); border-radius:10px;
-    padding:9px 12px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;
+    padding:9px 14px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;
+    margin-top:16px;
   }
-  .refresh-btn{
-    background:var(--bg-card); border:1.5px solid var(--border); color:var(--text-dim);
-    border-radius:10px; padding:9px 12px; font-weight:700; font-size:13px; cursor:pointer;
-  }
-  .refresh-btn:hover{ color:var(--teal); border-color:var(--teal); }
-  .status{ font-size:11px; color:var(--text-dim); text-align:center; padding:10px 20px 0; }
+  .status{ font-size:11px; color:var(--text-dim); text-align:center; padding:10px 20px 0; position:relative; z-index:1; }
 
   main{ max-width:1000px; margin:0 auto; padding:20px 20px 80px; }
 
@@ -82,36 +85,47 @@
   .split-fill-p{ background:var(--orange); height:100%; }
   .split-fill-n{ background:var(--teal); height:100%; }
 
-  .photos{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
   .photo-box{
-    aspect-ratio:4/3; border-radius:16px; overflow:hidden; border:1px solid var(--border);
+    border-radius:16px; overflow:hidden; border:1px solid var(--border); margin-top:20px;
     background:var(--bg-card2); display:flex; align-items:center; justify-content:center;
+    aspect-ratio:16/9;
   }
   .photo-box img{ width:100%; height:100%; object-fit:cover; display:block; }
   .photo-box .empty{ color:var(--text-dim); font-size:12px; font-weight:700; text-align:center; padding:0 20px; }
 
   .chart-wrap{ background:var(--bg-card2); border:1px solid var(--border); border-radius:16px; padding:16px; margin-top:20px; height:260px; }
 
+  /* --- Nuevo layout de TOTAL --- */
+  .total-label{ font-weight:900; font-size:clamp(32px,7vw,52px); color:var(--orange); letter-spacing:1px; text-align:center; text-transform:uppercase; }
+  .total-sub{ color:var(--text-dim); font-weight:700; font-size:13px; text-align:center; margin-top:4px; margin-bottom:8px; }
+  .group-title{ font-weight:900; font-size:clamp(16px,2.8vw,22px); text-align:center; letter-spacing:1.5px; margin:30px 0 12px; color:var(--text); }
+  .metric-row{
+    display:flex; align-items:flex-end; justify-content:space-between; padding:16px 6px;
+    border-bottom:1px solid var(--border);
+  }
+  .metric-row:last-of-type{ border-bottom:none; }
+  .metric-left, .metric-right{ display:flex; flex-direction:column; }
+  .metric-right{ align-items:flex-end; }
+  .metric-tag{ font-size:11px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+  .metric-main{ font-size:clamp(28px,6vw,42px); font-weight:900; color:var(--text); line-height:1; }
+  .metric-avg{ font-size:clamp(16px,3.2vw,22px); font-weight:800; color:var(--text-dim); line-height:1; }
+
+  .service-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0 6px; }
+  .service-box{ background:var(--bg-card2); border:1px solid var(--border); border-radius:14px; padding:16px 8px; text-align:center; }
+  .service-box .s-label{ font-size:10.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; line-height:1.3; }
+  .service-box .s-total{ font-size:clamp(20px,4.5vw,28px); font-weight:900; color:var(--teal); line-height:1; }
+  .service-box .s-avg{ font-size:11.5px; font-weight:700; color:var(--text-dim); margin-top:6px; }
+
+  .afiliados-row{ display:flex; align-items:flex-end; justify-content:space-between; padding:16px 6px 4px; }
+  .af-main{ font-size:clamp(32px,6.5vw,46px); font-weight:900; color:var(--teal); line-height:1; }
+  .af-right{ display:flex; flex-direction:column; align-items:flex-end; }
+  .af-right .val{ font-size:clamp(18px,3.5vw,26px); font-weight:800; color:var(--text-dim); line-height:1; }
+  .af-right .lbl{ font-size:10px; color:var(--text-dim); font-weight:700; text-transform:uppercase; margin-top:4px; letter-spacing:.4px; }
+
   .week-badge{
     display:inline-block; background:var(--teal-dim); color:var(--teal); font-weight:800; font-size:11px;
     padding:4px 10px; border-radius:20px; letter-spacing:.4px; margin-bottom:8px;
   }
-
-  /* --- Meses (grid compacto) --- */
-  .month-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
-  .month-card{
-    background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:20px;
-    scroll-margin-top:90px; transition:box-shadow .3s, border-color .3s;
-  }
-  .month-card.highlight{ border-color:var(--teal); box-shadow:0 0 0 4px rgba(0,212,170,.2); }
-  .month-card.empty{ opacity:.45; }
-  .month-card .m-title{ font-weight:900; font-size:16px; margin-bottom:2px; }
-  .month-card .m-sub{ font-size:11px; color:var(--text-dim); font-weight:700; margin-bottom:14px; }
-  .month-card .m-hero{ font-size:30px; font-weight:900; color:var(--orange); line-height:1; }
-  .month-card .m-hero-lbl{ font-size:11px; color:var(--text-dim); font-weight:700; margin-bottom:12px; }
-  .m-mini-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; font-size:12px; }
-  .m-mini-grid .row{ display:flex; justify-content:space-between; color:var(--text-dim); font-weight:700; }
-  .m-mini-grid .row b{ color:var(--text); }
 
   .empty-state{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--text-dim); text-align:center; padding:50px 20px; }
   .empty-state .big{ font-size:38px; }
@@ -126,16 +140,11 @@
 </head>
 <body>
 <div class="topbar">
-  <div class="brand">
-    <div class="eyebrow">Caja Los Andes · CicloRecreoVía</div>
-    <div class="title">Informe Resultados CRV</div>
-  </div>
-  <div class="controls">
-    <select id="selector">
-      <option value="">Ir rápido a…</option>
-    </select>
-    <button class="refresh-btn" onclick="cargarDatos(true)">⟳ Actualizar</button>
-  </div>
+  <div class="brand-title">CAJA LOS ANDES · CICLORECREOVÍA</div>
+  <div class="brand-sub">INFORME</div>
+  <select id="selector">
+    <option value="">Filtro</option>
+  </select>
 </div>
 <div class="status" id="statusLine">Cargando datos…</div>
 
@@ -240,7 +249,6 @@
         afiliados: toNum(r.afiliados),
         noAfiliados: toNum(r.no_afiliados),
         foto1: r.foto1_url,
-        foto2: r.foto2_url,
       })).filter(r => r.fecha).sort((a,b) => a.fecha.localeCompare(b.fecha));
 
       statusLine.textContent = registros.length
@@ -297,11 +305,59 @@
       </div>`;
   }
 
+  function bloqueVariablesHTML(vals, n, tituloGrande, subtitulo){
+    const avg = (x) => (n ? (x / n) : 0).toLocaleString('es-CL', { maximumFractionDigits: 1 });
+    return `
+      <div class="total-label">${tituloGrande}</div>
+      <div class="total-sub">${subtitulo}</div>
+
+      <div class="group-title">TRANSACCIONES</div>
+      <div class="metric-row">
+        <div class="metric-left"><div class="metric-main">${vals.totales.toLocaleString('es-CL')}</div></div>
+        <div class="metric-right"><div class="metric-avg">${avg(vals.totales)}</div></div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-left"><div class="metric-tag">Providencia</div><div class="metric-main">${vals.providencia.toLocaleString('es-CL')}</div></div>
+        <div class="metric-right"><div class="metric-avg">${avg(vals.providencia)}</div></div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-left"><div class="metric-tag">Ñuñoa</div><div class="metric-main">${vals.nunoa.toLocaleString('es-CL')}</div></div>
+        <div class="metric-right"><div class="metric-avg">${avg(vals.nunoa)}</div></div>
+      </div>
+
+      <div class="service-grid">
+        <div class="service-box">
+          <div class="s-label">Kit Agua-Fruta</div>
+          <div class="s-total">${vals.kits.toLocaleString('es-CL')}</div>
+          <div class="s-avg">${avg(vals.kits)}</div>
+        </div>
+        <div class="service-box">
+          <div class="s-label">Bicicleta</div>
+          <div class="s-total">${vals.bicicletas.toLocaleString('es-CL')}</div>
+          <div class="s-avg">${avg(vals.bicicletas)}</div>
+        </div>
+        <div class="service-box">
+          <div class="s-label">Mecánica</div>
+          <div class="s-total">${vals.mecanica.toLocaleString('es-CL')}</div>
+          <div class="s-avg">${avg(vals.mecanica)}</div>
+        </div>
+      </div>
+
+      <div class="group-title">AFILIADOS</div>
+      <div class="afiliados-row">
+        <div class="af-main">${vals.afiliados.toLocaleString('es-CL')}</div>
+        <div class="af-right">
+          <div class="val">${vals.noAfiliados.toLocaleString('es-CL')}</div>
+          <div class="lbl">No afiliados</div>
+        </div>
+      </div>
+    `;
+  }
+
   function photosHTML(r){
-    const box = (url) => url
-      ? `<div class="photo-box"><img src="${url}" alt="Foto jornada ${r.fecha}" loading="lazy"></div>`
+    return r.foto1
+      ? `<div class="photo-box"><img src="${r.foto1}" alt="Foto jornada ${r.fecha}" loading="lazy"></div>`
       : `<div class="photo-box"><div class="empty">Sin foto para esta fecha</div></div>`;
-    return `<div class="photos">${box(r.foto1)}${box(r.foto2)}</div>`;
   }
 
   // ---------- Render de la página completa ----------
@@ -322,14 +378,8 @@
     VARS.forEach(v => totalVals[v.key] = registros.reduce((s,r) => s + r[v.key], 0));
 
     let html = `
-      <div class="section-header" id="sec-consolidado">
-        <div class="eyebrow">Consolidado anual</div>
-        <div class="title">Total acumulado hasta hoy</div>
-        <div class="sub">${registros.length} de 52 domingo(s) registrados · del ${fechaBonita(registros[0].fecha)} al ${fechaBonita(registros[registros.length-1].fecha)}</div>
-      </div>
       <div class="slide" id="anchor-todas">
-        ${statCardsHTML(totalVals, 'totales')}
-        ${splitBarHTML(totalVals)}
+        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL', `${registros.length} de 52 domingos`)}
         <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
     `;
@@ -339,39 +389,26 @@
       <div class="section-header" id="sec-meses">
         <div class="eyebrow">Resumen mensual</div>
         <div class="title">Subtotal por mes</div>
-        <div class="sub">Suma de las variables en cada mes, julio 2026 – junio 2027</div>
-      </div>
-      <div class="month-grid">`;
+        <div class="sub">Domingos registrados hasta ahora, julio 2026 – junio 2027</div>
+      </div>`;
 
     mesesDisponibles().forEach(mes => {
       const delMes = registros.filter(r => r.fecha.slice(0,7) === mes.key);
       if (!delMes.length){
         html += `
-          <div class="month-card empty" id="anchor-mes-${mes.key}">
-            <div class="m-title">${mes.label}</div>
-            <div class="m-sub">Sin domingos registrados aún</div>
+          <div class="slide" id="anchor-mes-${mes.key}" style="opacity:.45">
+            <div class="total-label" style="font-size:clamp(20px,4vw,26px)">${mes.label}</div>
+            <div class="total-sub">Sin domingos registrados aún</div>
           </div>`;
       } else {
         const v = {};
         VARS.forEach(x => v[x.key] = delMes.reduce((s,r) => s + r[x.key], 0));
         html += `
-          <div class="month-card" id="anchor-mes-${mes.key}">
-            <div class="m-title">${mes.label}</div>
-            <div class="m-sub">${delMes.length} domingo(s) registrados</div>
-            <div class="m-hero">${v.totales.toLocaleString('es-CL')}</div>
-            <div class="m-hero-lbl">Transacciones totales</div>
-            <div class="m-mini-grid">
-              <div class="row">Kits <b>${v.kits.toLocaleString('es-CL')}</b></div>
-              <div class="row">Mecánica <b>${v.mecanica.toLocaleString('es-CL')}</b></div>
-              <div class="row">Bicicletas <b>${v.bicicletas.toLocaleString('es-CL')}</b></div>
-              <div class="row">Afiliados <b>${v.afiliados.toLocaleString('es-CL')}</b></div>
-              <div class="row">Providencia <b>${v.providencia.toLocaleString('es-CL')}</b></div>
-              <div class="row">Ñuñoa <b>${v.nunoa.toLocaleString('es-CL')}</b></div>
-            </div>
+          <div class="slide" id="anchor-mes-${mes.key}">
+            ${bloqueVariablesHTML(v, delMes.length, mes.label, `${delMes.length} domingo(s) registrado(s)`)}
           </div>`;
       }
     });
-    html += `</div>`;
 
     // --- Domingos (más reciente primero) ---
     html += `
@@ -424,7 +461,7 @@
   // ---------- Selector = salto rápido, no filtro ----------
   function construirSelector(){
     const sel = document.getElementById('selector');
-    sel.innerHTML = '<option value="">Ir rápido a…</option>';
+    sel.innerHTML = '<option value="">Filtro</option>';
 
     const optTodas = document.createElement('option');
     optTodas.value = 'anchor-todas';
