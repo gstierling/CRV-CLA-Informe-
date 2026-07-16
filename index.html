@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAJA LOS ANDES · Informe Resultados CicloRecreoVía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0d1117; --bg-card:#161b22; --bg-card2:#1c2129; --border:#21262d;
+    --text:#e6edf3; --text-dim:#8b949e;
+    --orange:#f97316; --orange-dim:rgba(249,115,22,.15);
+    --teal:#00d4aa; --teal-dim:rgba(0,212,170,.15);
+  }
+  *{box-sizing:border-box;}
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); }
+
+  .topbar{
+    position:sticky; top:0; z-index:10; background:rgba(13,17,23,.94); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border); padding:14px 20px;
+    display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+  }
+  .brand .eyebrow{ color:var(--orange); font-weight:800; font-size:11px; letter-spacing:1.5px; }
+  .brand .title{ font-weight:900; font-size:15px; }
+  .controls{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  select{
+    background:var(--bg-card); color:var(--text); border:1.5px solid var(--border); border-radius:10px;
+    padding:9px 12px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .refresh-btn{
+    background:var(--bg-card); border:1.5px solid var(--border); color:var(--text-dim);
+    border-radius:10px; padding:9px 12px; font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .refresh-btn:hover{ color:var(--teal); border-color:var(--teal); }
+  .status{ font-size:11px; color:var(--text-dim); text-align:center; padding:10px 20px 0; }
+
+  main{ max-width:1000px; margin:0 auto; padding:20px 20px 80px; }
+
+  .section-header{ margin:44px 0 18px; scroll-margin-top:90px; }
+  .section-header .eyebrow{ color:var(--orange); font-weight:800; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; }
+  .section-header .title{ font-weight:900; font-size:clamp(20px,3vw,28px); margin-top:4px; }
+  .section-header .sub{ color:var(--text-dim); font-weight:600; font-size:13px; margin-top:4px; }
+
+  /* --- Diapositiva (consolidado y domingos) --- */
+  .slide{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:24px;
+    padding:32px 28px; scroll-margin-top:90px; transition:box-shadow .3s, border-color .3s;
+  }
+  .slide + .slide{ margin-top:20px; }
+  .slide.highlight{ border-color:var(--teal); box-shadow:0 0 0 4px rgba(0,212,170,.2); }
+
+  .slide-eyebrow{ color:var(--orange); font-weight:800; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; }
+  .slide-title{ font-weight:900; font-size:clamp(20px,3.5vw,28px); margin:6px 0 0; line-height:1.15; }
+  .slide-sub{ color:var(--text-dim); font-weight:600; font-size:13px; margin-top:5px; }
+
+  .hero-number{
+    display:flex; align-items:baseline; gap:14px; margin:20px 0 22px;
+    padding:20px 22px; background:linear-gradient(135deg, var(--orange-dim), transparent);
+    border:1px solid var(--border); border-left:4px solid var(--orange); border-radius:16px;
+  }
+  .hero-number .num{ font-size:clamp(34px,5vw,52px); font-weight:900; color:var(--orange); line-height:1; }
+  .hero-number .lbl{ color:var(--text-dim); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.5px; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:8px; }
+  .stat-card{
+    background:var(--bg-card2); border:1px solid var(--border); border-radius:14px; padding:14px;
+    display:flex; flex-direction:column; gap:5px;
+  }
+  .stat-card svg{ width:18px; height:18px; }
+  .stat-card .val{ font-size:23px; font-weight:900; color:var(--text); }
+  .stat-card .lbl{ font-size:11px; color:var(--text-dim); font-weight:700; }
+  .stat-card.teal{ border-left:3px solid var(--teal); }
+  .stat-card.orange{ border-left:3px solid var(--orange); }
+
+  .split-row{ display:flex; gap:12px; margin:16px 0 4px; }
+  .split-bar{ flex:1; background:var(--bg-card2); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .split-bar .top{ display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--text-dim); margin-bottom:8px; }
+  .split-track{ height:9px; border-radius:6px; background:#0d1117; overflow:hidden; }
+  .split-fill-p{ background:var(--orange); height:100%; }
+  .split-fill-n{ background:var(--teal); height:100%; }
+
+  .photos{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
+  .photo-box{
+    aspect-ratio:4/3; border-radius:16px; overflow:hidden; border:1px solid var(--border);
+    background:var(--bg-card2); display:flex; align-items:center; justify-content:center;
+  }
+  .photo-box img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .photo-box .empty{ color:var(--text-dim); font-size:12px; font-weight:700; text-align:center; padding:0 20px; }
+
+  .chart-wrap{ background:var(--bg-card2); border:1px solid var(--border); border-radius:16px; padding:16px; margin-top:20px; height:260px; }
+
+  .week-badge{
+    display:inline-block; background:var(--teal-dim); color:var(--teal); font-weight:800; font-size:11px;
+    padding:4px 10px; border-radius:20px; letter-spacing:.4px; margin-bottom:8px;
+  }
+
+  /* --- Meses (grid compacto) --- */
+  .month-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
+  .month-card{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:20px;
+    scroll-margin-top:90px; transition:box-shadow .3s, border-color .3s;
+  }
+  .month-card.highlight{ border-color:var(--teal); box-shadow:0 0 0 4px rgba(0,212,170,.2); }
+  .month-card.empty{ opacity:.45; }
+  .month-card .m-title{ font-weight:900; font-size:16px; margin-bottom:2px; }
+  .month-card .m-sub{ font-size:11px; color:var(--text-dim); font-weight:700; margin-bottom:14px; }
+  .month-card .m-hero{ font-size:30px; font-weight:900; color:var(--orange); line-height:1; }
+  .month-card .m-hero-lbl{ font-size:11px; color:var(--text-dim); font-weight:700; margin-bottom:12px; }
+  .m-mini-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; font-size:12px; }
+  .m-mini-grid .row{ display:flex; justify-content:space-between; color:var(--text-dim); font-weight:700; }
+  .m-mini-grid .row b{ color:var(--text); }
+
+  .empty-state{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--text-dim); text-align:center; padding:50px 20px; }
+  .empty-state .big{ font-size:38px; }
+
+  .footer-note{ text-align:center; color:var(--text-dim); font-size:11.5px; margin-top:36px; }
+
+  @media(max-width:640px){
+    .photos{ grid-template-columns:1fr; }
+    .slide{ padding:22px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <div class="eyebrow">Caja Los Andes · CicloRecreoVía</div>
+    <div class="title">Informe Resultados CRV</div>
+  </div>
+  <div class="controls">
+    <select id="selector">
+      <option value="">Ir rápido a…</option>
+    </select>
+    <button class="refresh-btn" onclick="cargarDatos(true)">⟳ Actualizar</button>
+  </div>
+</div>
+<div class="status" id="statusLine">Cargando datos…</div>
+
+<main id="main">
+  <div id="content"></div>
+  <div class="footer-note">CicloRecreoVía · Informe generado automáticamente desde la planilla de registro</div>
+</main>
+
+<script>
+  // TODO: reemplazar con la URL de implementación de Apps Script (Code.gs)
+  const CSV_URL = "https://script.google.com/macros/s/AKfycbySvS6SJrVRxTS3lk7wTVmO0zl1wrJVDzmj81V2Ukxk9UskSQ0UG-wlbR2DnJae0dxR/exec";
+
+  const VARS = [
+    { key:'totales', label:'Transacciones totales', icon:'total' },
+    { key:'kits', label:'Kits Agua + Fruta', icon:'kit' },
+    { key:'mecanica', label:'Mecánica', icon:'wrench' },
+    { key:'bicicletas', label:'Bicicletas', icon:'bike' },
+    { key:'providencia', label:'Providencia', icon:'pin' },
+    { key:'nunoa', label:'Ñuñoa', icon:'pin' },
+    { key:'afiliados', label:'Afiliados', icon:'badge' },
+    { key:'noAfiliados', label:'No afiliados que consultaron', icon:'question' },
+  ];
+
+  const ICONS = {
+    total: '<svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>',
+    kit: '<svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2"><path d="M12 2v6M8 8h8l1 12H7L8 8z"/></svg>',
+    wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-3 3-2-2 3-3z"/></svg>',
+    bike: '<svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-9h4l3 9M10 8h4M12 17h6"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    badge: '<svg viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M8 12l-2 8 6-3 6 3-2-8"/></svg>',
+    question: '<svg viewBox="0 0 24 24" fill="none" stroke="#8b949e" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>',
+  };
+
+  const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  let registros = []; // orden cronológico ascendente
+
+  // ---------- CSV parsing (con soporte para comillas / comas embebidas) ----------
+  function parseCSV(text){
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i=0; i<text.length; i++){
+      const c = text[i], next = text[i+1];
+      if (inQuotes){
+        if (c === '"' && next === '"'){ field += '"'; i++; }
+        else if (c === '"'){ inQuotes = false; }
+        else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ','){ row.push(field); field=''; }
+        else if (c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+        else if (c === '\r'){ /* skip */ }
+        else field += c;
+      }
+    }
+    if (field.length || row.length){ row.push(field); rows.push(row); }
+    return rows.filter(r => r.length && r.some(c => c !== ''));
+  }
+
+  function toNum(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  function fechaBonita(fechaStr){
+    const d = new Date(fechaStr + 'T00:00:00');
+    return `${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()} de ${d.getFullYear()}`;
+  }
+  function mesesDisponibles(){
+    // 12 meses del proyecto, desde julio 2026
+    const arr = [];
+    let y = 2026, m = 6; // julio = index 6
+    for (let i=0;i<12;i++){
+      arr.push({ y, m, key:`${y}-${String(m+1).padStart(2,'0')}`, label:`${MESES[m]} ${y}` });
+      m++; if (m>11){ m=0; y++; }
+    }
+    return arr;
+  }
+
+  async function cargarDatos(manual){
+    const statusLine = document.getElementById('statusLine');
+    if (CSV_URL.indexOf('PENDIENTE') === 0){
+      statusLine.textContent = 'Falta conectar CSV_URL en el código con la URL de Apps Script.';
+      renderTodo();
+      return;
+    }
+    try {
+      statusLine.textContent = manual ? 'Actualizando…' : 'Cargando datos…';
+      const res = await fetch(CSV_URL + '?t=' + Date.now());
+      const text = await res.text();
+      const rows = parseCSV(text);
+      const headers = rows[0];
+      const data = rows.slice(1).map(r => {
+        const o = {};
+        headers.forEach((h,i) => o[h.trim()] = r[i] !== undefined ? r[i] : '');
+        return o;
+      });
+      registros = data.map(r => ({
+        fecha: r.fecha_domingo,
+        totales: toNum(r.transacciones_totales),
+        kits: toNum(r.kits_agua_fruta),
+        mecanica: toNum(r.mecanica),
+        bicicletas: toNum(r.bicicletas),
+        providencia: toNum(r.providencia),
+        nunoa: toNum(r.nunoa),
+        afiliados: toNum(r.afiliados),
+        noAfiliados: toNum(r.no_afiliados),
+        foto1: r.foto1_url,
+        foto2: r.foto2_url,
+      })).filter(r => r.fecha).sort((a,b) => a.fecha.localeCompare(b.fecha));
+
+      statusLine.textContent = registros.length
+        ? `${registros.length} de 52 domingo(s) registrados · actualizado ${new Date().toLocaleTimeString('es-CL')}`
+        : 'Sin registros todavía.';
+
+      renderTodo();
+      construirSelector();
+    } catch(err){
+      statusLine.textContent = 'Error cargando datos: ' + err.message;
+    }
+  }
+
+  // ---------- Piezas reutilizables ----------
+  function statCardsHTML(vals, heroKey){
+    const hero = VARS.find(v => v.key === heroKey);
+    const resto = VARS.filter(v => v.key !== heroKey);
+    let html = `
+      <div class="hero-number">
+        <div class="num">${vals[heroKey].toLocaleString('es-CL')}</div>
+        <div class="lbl">${hero.label}</div>
+      </div>
+      <div class="stat-grid">`;
+    resto.forEach(v => {
+      const isTeal = ['kits','mecanica','bicicletas','afiliados'].includes(v.key);
+      html += `
+        <div class="stat-card ${isTeal ? 'teal':'orange'}">
+          ${ICONS[v.icon]}
+          <div class="val">${vals[v.key].toLocaleString('es-CL')}</div>
+          <div class="lbl">${v.label}</div>
+        </div>`;
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  function splitBarHTML(vals){
+    const p = vals.providencia, n = vals.nunoa, tot = (p+n) || 1;
+    return `
+      <div class="split-row">
+        <div class="split-bar">
+          <div class="top"><span>Providencia</span><span style="color:var(--orange)">${p.toLocaleString('es-CL')}</span></div>
+          <div class="split-track"><div class="split-fill-p" style="width:${(p/tot*100)}%"></div></div>
+        </div>
+        <div class="split-bar">
+          <div class="top"><span>Ñuñoa</span><span style="color:var(--teal)">${n.toLocaleString('es-CL')}</span></div>
+          <div class="split-track"><div class="split-fill-n" style="width:${(n/tot*100)}%"></div></div>
+        </div>
+      </div>`;
+  }
+
+  function photosHTML(r){
+    const box = (url) => url
+      ? `<div class="photo-box"><img src="${url}" alt="Foto jornada ${r.fecha}" loading="lazy"></div>`
+      : `<div class="photo-box"><div class="empty">Sin foto para esta fecha</div></div>`;
+    return `<div class="photos">${box(r.foto1)}${box(r.foto2)}</div>`;
+  }
+
+  // ---------- Render de la página completa ----------
+  function renderTodo(){
+    const content = document.getElementById('content');
+
+    if (!registros.length){
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="big">📭</div>
+          <div>Todavía no hay domingos registrados en la planilla.<br>Apenas se ingrese el primero, aparecerá aquí automáticamente.</div>
+        </div>`;
+      return;
+    }
+
+    // --- Consolidado ---
+    const totalVals = {};
+    VARS.forEach(v => totalVals[v.key] = registros.reduce((s,r) => s + r[v.key], 0));
+
+    let html = `
+      <div class="section-header" id="sec-consolidado">
+        <div class="eyebrow">Consolidado anual</div>
+        <div class="title">Total acumulado hasta hoy</div>
+        <div class="sub">${registros.length} de 52 domingo(s) registrados · del ${fechaBonita(registros[0].fecha)} al ${fechaBonita(registros[registros.length-1].fecha)}</div>
+      </div>
+      <div class="slide" id="anchor-todas">
+        ${statCardsHTML(totalVals, 'totales')}
+        ${splitBarHTML(totalVals)}
+        <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
+      </div>
+    `;
+
+    // --- Meses ---
+    html += `
+      <div class="section-header" id="sec-meses">
+        <div class="eyebrow">Resumen mensual</div>
+        <div class="title">Subtotal por mes</div>
+        <div class="sub">Suma de las variables en cada mes, julio 2026 – junio 2027</div>
+      </div>
+      <div class="month-grid">`;
+
+    mesesDisponibles().forEach(mes => {
+      const delMes = registros.filter(r => r.fecha.slice(0,7) === mes.key);
+      if (!delMes.length){
+        html += `
+          <div class="month-card empty" id="anchor-mes-${mes.key}">
+            <div class="m-title">${mes.label}</div>
+            <div class="m-sub">Sin domingos registrados aún</div>
+          </div>`;
+      } else {
+        const v = {};
+        VARS.forEach(x => v[x.key] = delMes.reduce((s,r) => s + r[x.key], 0));
+        html += `
+          <div class="month-card" id="anchor-mes-${mes.key}">
+            <div class="m-title">${mes.label}</div>
+            <div class="m-sub">${delMes.length} domingo(s) registrados</div>
+            <div class="m-hero">${v.totales.toLocaleString('es-CL')}</div>
+            <div class="m-hero-lbl">Transacciones totales</div>
+            <div class="m-mini-grid">
+              <div class="row">Kits <b>${v.kits.toLocaleString('es-CL')}</b></div>
+              <div class="row">Mecánica <b>${v.mecanica.toLocaleString('es-CL')}</b></div>
+              <div class="row">Bicicletas <b>${v.bicicletas.toLocaleString('es-CL')}</b></div>
+              <div class="row">Afiliados <b>${v.afiliados.toLocaleString('es-CL')}</b></div>
+              <div class="row">Providencia <b>${v.providencia.toLocaleString('es-CL')}</b></div>
+              <div class="row">Ñuñoa <b>${v.nunoa.toLocaleString('es-CL')}</b></div>
+            </div>
+          </div>`;
+      }
+    });
+    html += `</div>`;
+
+    // --- Domingos (más reciente primero) ---
+    html += `
+      <div class="section-header" id="sec-domingos">
+        <div class="eyebrow">Registro por jornada</div>
+        <div class="title">Cada domingo</div>
+        <div class="sub">Más reciente primero</div>
+      </div>`;
+
+    [...registros].reverse().forEach(r => {
+      const semana = registros.findIndex(x => x.fecha === r.fecha) + 1;
+      html += `
+        <div class="slide" id="anchor-fecha-${r.fecha}">
+          <span class="week-badge">Semana ${semana} de 52</span>
+          <div class="slide-eyebrow">Registro dominical</div>
+          <div class="slide-title">${fechaBonita(r.fecha)}</div>
+          ${statCardsHTML(r, 'totales')}
+          ${splitBarHTML(r)}
+          ${photosHTML(r)}
+        </div>`;
+    });
+
+    content.innerHTML = html;
+
+    // Gráfico de tendencia
+    const ctx = document.getElementById('chartTrend');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: registros.map(r => fechaBonita(r.fecha)),
+        datasets: [{
+          label: 'Transacciones totales',
+          data: registros.map(r => r.totales),
+          borderColor: '#f97316',
+          backgroundColor: 'rgba(249,115,22,.15)',
+          tension: .3, fill: true, pointRadius: 3,
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ color:'#e6edf3', font:{family:'Nunito', weight:700} } } },
+        scales:{
+          x:{ ticks:{ color:'#8b949e', font:{family:'Nunito'} }, grid:{ color:'#21262d' } },
+          y:{ ticks:{ color:'#8b949e', font:{family:'Nunito'} }, grid:{ color:'#21262d' } }
+        }
+      }
+    });
+  }
+
+  // ---------- Selector = salto rápido, no filtro ----------
+  function construirSelector(){
+    const sel = document.getElementById('selector');
+    sel.innerHTML = '<option value="">Ir rápido a…</option>';
+
+    const optTodas = document.createElement('option');
+    optTodas.value = 'anchor-todas';
+    optTodas.textContent = '📊 Total acumulado';
+    sel.appendChild(optTodas);
+
+    const grpMeses = document.createElement('optgroup');
+    grpMeses.label = 'Meses';
+    mesesDisponibles().forEach(mes => {
+      const opt = document.createElement('option');
+      opt.value = `anchor-mes-${mes.key}`;
+      opt.textContent = mes.label;
+      grpMeses.appendChild(opt);
+    });
+    sel.appendChild(grpMeses);
+
+    const grpDomingos = document.createElement('optgroup');
+    grpDomingos.label = 'Domingos';
+    [...registros].reverse().forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = `anchor-fecha-${r.fecha}`;
+      opt.textContent = fechaBonita(r.fecha);
+      grpDomingos.appendChild(opt);
+    });
+    sel.appendChild(grpDomingos);
+
+    sel.onchange = () => {
+      if (!sel.value) return;
+      irA(sel.value);
+      sel.value = '';
+    };
+  }
+
+  function irA(id){
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior:'smooth', block:'start' });
+    el.classList.add('highlight');
+    setTimeout(() => el.classList.remove('highlight'), 1600);
+  }
+
+  cargarDatos();
+  setInterval(() => cargarDatos(false), 60000); // auto-refresh cada 60s
+</script>
+</body>
+</html>
