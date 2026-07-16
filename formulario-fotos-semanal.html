@@ -25,7 +25,7 @@
   h1{ font-size:20px; font-weight:900; margin:6px 0 4px; line-height:1.25; }
   .sub{ color:var(--text-dim); font-size:13px; margin-bottom:22px; line-height:1.5; }
   label{ display:block; font-size:13px; font-weight:700; color:var(--text-dim); margin:16px 0 6px; }
-  input[type=date], input[type=url]{
+  input[type=date]{
     width:100%; background:#0d1117; border:1.5px solid var(--border); color:var(--text);
     border-radius:10px; padding:12px 14px; font-family:'Nunito',sans-serif; font-size:15px; font-weight:700;
   }
@@ -41,46 +41,55 @@
   .msg{ margin-top:16px; padding:13px; border-radius:10px; font-size:13px; font-weight:700; text-align:center; display:none; }
   .msg.ok{ background:rgba(0,212,170,.12); border:1px solid var(--teal); color:var(--teal); display:block; }
   .msg.err{ background:rgba(249,115,22,.12); border:1px solid var(--orange); color:var(--orange); display:block; }
-  .drive-steps{
-    margin-top:18px; padding:14px; border-radius:12px; background:rgba(0,212,170,.08);
-    border:1px solid rgba(0,212,170,.3); font-size:12.5px; line-height:1.8; color:var(--text-dim);
+
+  .dropzone{
+    margin-top:8px; border-radius:14px; border:2px dashed var(--border); background:#0d1117;
+    aspect-ratio:4/3; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; cursor:pointer; transition:border-color .2s, background .2s; text-align:center; padding:16px;
+    position:relative; overflow:hidden;
   }
-  .drive-steps b{ color:var(--text); }
-  .preview-box{
-    margin-top:8px; border-radius:10px; overflow:hidden; border:1.5px dashed var(--border);
-    aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; background:#0d1117;
+  .dropzone:hover{ border-color:var(--teal); }
+  .dropzone.dragover{ border-color:var(--teal); background:rgba(0,212,170,.08); }
+  .dropzone svg{ width:28px; height:28px; stroke:var(--text-dim); }
+  .dropzone .dz-text{ font-size:12px; color:var(--text-dim); font-weight:700; }
+  .dropzone .dz-text b{ color:var(--teal); }
+  .dropzone.has-image{ border-style:solid; border-color:var(--teal); padding:0; }
+  .dropzone img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .dropzone .dz-remove{
+    position:absolute; top:8px; right:8px; background:rgba(13,17,23,.85); color:#fff; border:none;
+    width:28px; height:28px; border-radius:50%; font-size:15px; font-weight:900; cursor:pointer; line-height:1;
   }
-  .preview-box img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .preview-box.ok{ border-style:solid; border-color:var(--teal); }
-  .preview-box.err{ border-style:solid; border-color:var(--orange); }
-  .preview-empty{ font-size:11px; color:var(--text-dim); font-weight:700; }
-  .preview-err-text{ font-size:11px; color:var(--orange); font-weight:700; text-align:center; padding:0 14px; }
+  .dz-input{ display:none; }
 </style>
 </head>
 <body>
 <div class="card">
   <div class="eyebrow">Caja Los Andes · CicloRecreoVía</div>
   <h1>Fotos del domingo</h1>
-  <div class="sub">Las 8 variables se calculan solas desde los registros de la estación. Esto es solo para dejar 1-2 fotos de esa jornada. Puedes reenviar este formulario con la misma fecha para reemplazar las fotos ya guardadas.</div>
-
-  <div class="drive-steps">
-    <b>Cómo subir la foto desde Google Drive:</b>
-    1. Sube la foto a Drive → click derecho → <b>Compartir</b><br>
-    2. En "Acceso general" elige <b>"Cualquier persona con el enlace"</b><br>
-    3. Copia el enlace tal cual te lo da Google y pégalo abajo (no hace falta modificarlo, este formulario lo convierte solo)
-  </div>
+  <div class="sub">Las 8 variables se calculan solas desde los registros de la estación. Esto es solo para dejar 1-2 fotos de esa jornada — arrástralas, elígelas desde tu celular/computador, o cópialas (Ctrl+C) y pégalas (Ctrl+V) directo en el recuadro. Puedes reenviar este formulario con la misma fecha para reemplazar una foto ya guardada.</div>
 
   <label>Domingo correspondiente</label>
   <input type="date" id="fecha" required>
   <div class="hint" id="fechaHint"></div>
 
-  <label>Foto 1 — pega aquí el link de Google Drive</label>
-  <input type="url" id="foto1" placeholder="https://drive.google.com/file/d/..." oninput="previsualizar(1)">
-  <div class="preview-box" id="preview1"><span class="preview-empty">La vista previa aparece aquí</span></div>
+  <label>Foto 1</label>
+  <div class="dropzone" id="dz1" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path')document.getElementById('input1').click()">
+    <div class="dz-empty" id="dzEmpty1">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
+    </div>
+    <input class="dz-input" type="file" id="input1" accept="image/*">
+  </div>
+  <div class="hint">Si es una foto de iPhone y no carga, revisa que esté en formato JPG (Ajustes → Cámara → Formatos → Más compatible).</div>
 
-  <label>Foto 2 (opcional) — pega aquí el link de Google Drive</label>
-  <input type="url" id="foto2" placeholder="https://drive.google.com/file/d/..." oninput="previsualizar(2)">
-  <div class="preview-box" id="preview2"><span class="preview-empty">La vista previa aparece aquí</span></div>
+  <label>Foto 2 (opcional)</label>
+  <div class="dropzone" id="dz2" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path')document.getElementById('input2').click()">
+    <div class="dz-empty" id="dzEmpty2">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
+    </div>
+    <input class="dz-input" type="file" id="input2" accept="image/*">
+  </div>
 
   <button id="btnEnviar" onclick="enviar()">Guardar fotos de este domingo</button>
   <div class="msg" id="msg"></div>
@@ -107,41 +116,85 @@
   fechaInput.addEventListener('change', actualizarHint);
   actualizarHint();
 
-  // Convierte cualquier link normal de compartir de Google Drive a un link de imagen directa.
-  // Si no es un link de Drive, lo deja tal cual (por si usan otro servicio).
-  function convertirLinkDrive(url){
-    if (!url) return '';
-    url = url.trim();
-    let id = null;
-    let m = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (m) id = m[1];
-    if (!id) { m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (m) id = m[1]; }
-    if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w2000`;
-    return url; // no es Drive, se usa tal cual (ej: ImgBB, Imgur, etc.)
+  // ---------- Manejo de las 2 zonas de arrastrar-y-soltar ----------
+  const estado = { 1: null, 2: null }; // guarda el dataURL (base64) ya comprimido de cada foto
+
+  function comprimirImagen(file, maxWidth = 1600, calidad = 0.82){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if (w > maxWidth){ h = Math.round(h * maxWidth / w); w = maxWidth; }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', calidad));
+        };
+        img.onerror = () => reject(new Error('No se pudo leer la imagen (¿formato no soportado?)'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+      reader.readAsDataURL(file);
+    });
   }
 
-  function previsualizar(n){
-    const raw = document.getElementById('foto' + n).value.trim();
-    const box = document.getElementById('preview' + n);
-    box.className = 'preview-box';
-    if (!raw){
-      box.innerHTML = '<span class="preview-empty">La vista previa aparece aquí</span>';
-      return;
+  async function manejarArchivo(n, file){
+    if (!file || !file.type.startsWith('image/')) return;
+    const dz = document.getElementById('dz' + n);
+    try {
+      const dataUrl = await comprimirImagen(file);
+      estado[n] = dataUrl;
+      dz.classList.add('has-image');
+      dz.innerHTML = `<img src="${dataUrl}" alt="Foto ${n}"><button class="dz-remove" onclick="quitarFoto(event,${n})">✕</button>`;
+    } catch(err){
+      alert('Foto ' + n + ': ' + err.message);
     }
-    const directUrl = convertirLinkDrive(raw);
-    const img = new Image();
-    img.onload = () => {
-      box.className = 'preview-box ok';
-      box.innerHTML = '';
-      box.appendChild(img);
-    };
-    img.onerror = () => {
-      box.className = 'preview-box err';
-      box.innerHTML = '<span class="preview-err-text">⚠ No se pudo cargar. Revisa que el enlace de Drive esté compartido como "Cualquier persona con el enlace".</span>';
-    };
-    img.src = directUrl;
   }
 
+  function quitarFoto(ev, n){
+    ev.stopPropagation();
+    estado[n] = null;
+    const dz = document.getElementById('dz' + n);
+    dz.classList.remove('has-image');
+    dz.innerHTML = `
+      <div class="dz-empty" id="dzEmpty${n}">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
+      </div>
+      <input class="dz-input" type="file" id="input${n}" accept="image/*">`;
+    document.getElementById('input' + n).addEventListener('change', (e) => manejarArchivo(n, e.target.files[0]));
+  }
+
+  [1, 2].forEach(n => {
+    const dz = document.getElementById('dz' + n);
+    const input = document.getElementById('input' + n);
+    input.addEventListener('change', (e) => manejarArchivo(n, e.target.files[0]));
+    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+    dz.addEventListener('drop', (e) => {
+      e.preventDefault(); dz.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) manejarArchivo(n, e.dataTransfer.files[0]);
+    });
+    // Permite pegar (Ctrl+V) una imagen copiada, si la zona está enfocada/seleccionada con click
+    dz.setAttribute('tabindex', '0');
+    dz.addEventListener('paste', (e) => {
+      const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+      if (item) manejarArchivo(n, item.getAsFile());
+    });
+  });
+
+  // Pegar en cualquier parte de la página va a la primera zona vacía (Foto 1 si está libre, si no Foto 2)
+  window.addEventListener('paste', (e) => {
+    if (document.activeElement && document.activeElement.id && document.activeElement.id.startsWith('dz')) return; // ya lo maneja el listener de la zona
+    const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+    if (!item) return;
+    const destino = !estado[1] ? 1 : 2;
+    manejarArchivo(destino, item.getAsFile());
+  });
+
+  // ---------- Envío ----------
   async function enviar(){
     const btn = document.getElementById('btnEnviar');
     const msg = document.getElementById('msg');
@@ -149,14 +202,11 @@
 
     if (!fechaInput.value){ msg.className='msg err'; msg.textContent='Selecciona la fecha del domingo.'; return; }
     if (ENDPOINT_URL.indexOf('PENDIENTE') === 0){ msg.className='msg err'; msg.textContent='Falta conectar ENDPOINT_URL en el código.'; return; }
+    if (!estado[1] && !estado[2]){ msg.className='msg err'; msg.textContent='Agrega al menos una foto.'; return; }
 
-    const payload = {
-      fecha: fechaInput.value,
-      foto1: convertirLinkDrive(document.getElementById('foto1').value.trim()),
-      foto2: convertirLinkDrive(document.getElementById('foto2').value.trim())
-    };
+    const payload = { fecha: fechaInput.value, foto1: estado[1], foto2: estado[2] };
 
-    btn.disabled = true; btn.textContent = 'Guardando...';
+    btn.disabled = true; btn.textContent = 'Subiendo fotos...';
     try {
       const res = await fetch(ENDPOINT_URL, {
         method: 'POST',
