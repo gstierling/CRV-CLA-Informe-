@@ -92,24 +92,24 @@
   /* --- Nuevo layout de TOTAL --- */
   .total-label{ font-weight:900; font-size:clamp(26px,6vw,40px); color:var(--orange); letter-spacing:1px; text-align:center; text-transform:uppercase; }
   .total-sub{ color:var(--text-dim); font-weight:700; font-size:12px; text-align:center; margin-top:2px; margin-bottom:4px; }
-  .group-title{ font-weight:900; font-size:clamp(14px,2.4vw,18px); text-align:center; letter-spacing:1.5px; margin:14px 0 8px; color:var(--text); }
+  .group-title{ font-weight:900; font-size:clamp(18px,3vw,23px); text-align:center; letter-spacing:1.5px; margin:14px 0 8px; color:var(--text); }
 
   .trio-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin:4px 0 2px; text-align:center; }
   .trio-col{ display:flex; flex-direction:column; align-items:center; }
   .trio-label{ font-size:10.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
   .trio-value{ font-size:clamp(26px,9vw,42px); font-weight:900; color:var(--text); line-height:1; }
-  .trio-avg{ font-size:clamp(13px,3vw,17px); font-weight:800; color:var(--text-dim); margin-top:2px; line-height:1; }
-  .trio-avg-lbl{ font-size:8.5px; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:.4px; margin-top:1px; }
+  .trio-avg{ font-size:clamp(16px,3.75vw,21px); font-weight:800; color:var(--text-dim); margin-top:2px; line-height:1; }
+  .trio-avg-lbl{ font-size:10.5px; color:var(--text-dim); font-weight:700; letter-spacing:.4px; margin-top:1px; }
 
   .service-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0 2px; }
   .service-box{ background:var(--bg-card2); border:1px solid var(--border); border-radius:12px; padding:10px 6px; text-align:center; }
   .service-box .s-label{ font-size:9.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.3px; margin-bottom:5px; line-height:1.25; }
   .service-box .s-total{ font-size:clamp(18px,5vw,26px); font-weight:900; color:var(--teal); line-height:1; }
-  .service-box .s-avg{ font-size:11px; font-weight:700; color:var(--text-dim); margin-top:4px; }
-  .service-box .s-avg-lbl{ font-size:8px; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
+  .service-box .s-avg{ font-size:13.75px; font-weight:700; color:var(--text-dim); margin-top:4px; }
+  .service-box .s-avg-lbl{ font-size:10px; color:var(--text-dim); font-weight:700; letter-spacing:.3px; }
 
   .afiliados-row{ display:flex; align-items:flex-end; justify-content:space-between; padding:8px 4px 2px; }
-  .af-main{ font-size:clamp(28px,6vw,40px); font-weight:900; color:var(--teal); line-height:1; }
+  .af-main{ font-size:clamp(26px,9vw,42px); font-weight:900; color:var(--teal); line-height:1; }
   .af-right{ display:flex; flex-direction:column; align-items:flex-end; }
   .af-right .val{ font-size:clamp(16px,3.2vw,22px); font-weight:800; color:var(--text-dim); line-height:1; }
   .af-right .lbl{ font-size:9px; color:var(--text-dim); font-weight:700; text-transform:uppercase; margin-top:3px; letter-spacing:.4px; }
@@ -295,7 +295,7 @@
   }
 
   function bloqueVariablesHTML(vals, n, tituloGrande, subtitulo){
-    const avg = (x) => (n ? (x / n) : 0).toLocaleString('es-CL', { maximumFractionDigits: 1 });
+    const avg = (x) => (n ? (x / n) : 0).toLocaleString('es-CL', { maximumFractionDigits: 0 });
     return `
       <div class="total-label">${tituloGrande}</div>
       <div class="total-sub">${subtitulo}</div>
@@ -383,30 +383,16 @@
       </div>
     `;
 
-    // --- Meses ---
-    html += `
-      <div class="section-header" id="sec-meses">
-        <div class="eyebrow">Resumen mensual</div>
-        <div class="title">Subtotal por mes</div>
-        <div class="sub">Domingos registrados hasta ahora, julio 2026 – junio 2027</div>
-      </div>`;
-
+    // --- Meses (solo los que tengan al menos un domingo registrado) ---
     mesesDisponibles().forEach(mes => {
       const delMes = registros.filter(r => r.fecha.slice(0,7) === mes.key);
-      if (!delMes.length){
-        html += `
-          <div class="slide" id="anchor-mes-${mes.key}" style="opacity:.45">
-            <div class="total-label" style="font-size:clamp(20px,4vw,26px)">${mes.label}</div>
-            <div class="total-sub">Sin domingos registrados aún</div>
-          </div>`;
-      } else {
-        const v = {};
-        VARS.forEach(x => v[x.key] = delMes.reduce((s,r) => s + r[x.key], 0));
-        html += `
-          <div class="slide" id="anchor-mes-${mes.key}">
-            ${bloqueVariablesHTML(v, delMes.length, mes.label, `${delMes.length} domingo(s) registrado(s)`)}
-          </div>`;
-      }
+      if (!delMes.length) return;
+      const v = {};
+      VARS.forEach(x => v[x.key] = delMes.reduce((s,r) => s + r[x.key], 0));
+      html += `
+        <div class="slide" id="anchor-mes-${mes.key}">
+          ${bloqueVariablesHTML(v, delMes.length, mes.label, `${delMes.length} domingo(s) registrado(s)`)}
+        </div>`;
     });
 
     // --- Domingos (más reciente primero) ---
@@ -421,11 +407,7 @@
       const semana = registros.findIndex(x => x.fecha === r.fecha) + 1;
       html += `
         <div class="slide" id="anchor-fecha-${r.fecha}">
-          <span class="week-badge">Semana ${semana} de 52</span>
-          <div class="slide-eyebrow">Registro dominical</div>
-          <div class="slide-title">${fechaBonita(r.fecha)}</div>
-          ${statCardsHTML(r, 'totales')}
-          ${splitBarHTML(r)}
+          ${bloqueVariablesHTML(r, 1, fechaBonita(r.fecha), `Semana ${semana} de 52`)}
           ${photosHTML(r)}
         </div>`;
     });
@@ -445,7 +427,7 @@
 
     const grpMeses = document.createElement('optgroup');
     grpMeses.label = 'Meses';
-    mesesDisponibles().forEach(mes => {
+    mesesDisponibles().filter(mes => registros.some(r => r.fecha.slice(0,7) === mes.key)).forEach(mes => {
       const opt = document.createElement('option');
       opt.value = `anchor-mes-${mes.key}`;
       opt.textContent = mes.label;
