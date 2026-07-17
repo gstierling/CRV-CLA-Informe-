@@ -28,12 +28,26 @@
   }
   .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--orange); flex-shrink:0; animation:pulse 1.8s infinite; }
   @keyframes pulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
-  .brand-sub{ font-weight:800; font-size:clamp(11px,2.2vw,14px); color:var(--text-dim); letter-spacing:3px; margin-top:2px; }
-  select{
+  .brand-sub{ font-weight:800; font-size:clamp(22px,4.4vw,28px); color:var(--text-dim); letter-spacing:3px; margin-top:2px; }
+  .filtro-wrap{ position:relative; margin-top:10px; }
+  .filtro-btn{
     background:var(--bg-card); color:var(--text); border:1.5px solid var(--border); border-radius:999px;
-    padding:8px 20px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; cursor:pointer;
-    margin-top:10px; text-align:center; text-align-last:center;
+    padding:8px 24px; font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; cursor:pointer;
   }
+  .filtro-panel{
+    display:none; position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%);
+    background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px;
+    max-height:55vh; overflow-y:auto; width:min(88vw,300px); z-index:20;
+    padding:4px; text-align:left; box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  .filtro-panel.open{ display:block; }
+  .filtro-group-label{ font-size:9.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px; padding:6px 8px 2px; }
+  .filtro-opt{
+    display:block; width:100%; background:none; border:none; color:var(--text); text-align:left;
+    padding:5px 8px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; cursor:pointer;
+    border-radius:7px; line-height:1.3;
+  }
+  .filtro-opt:hover, .filtro-opt:active{ background:var(--bg-card2); }
   .status{ font-size:11px; color:var(--text-dim); text-align:center; padding:4px 20px 0; min-height:14px; position:relative; z-index:1; }
 
   main{ max-width:1000px; margin:0 auto; padding:8px 14px 40px; }
@@ -133,9 +147,10 @@
 <div class="topbar">
   <div class="brand-title"><span class="live-dot"></span>CAJA LOS ANDES · CICLORECREOVÍA</div>
   <div class="brand-sub">INFORME</div>
-  <select id="selector">
-    <option value="">Filtro</option>
-  </select>
+  <div class="filtro-wrap">
+    <button class="filtro-btn" id="filtroBtn" onclick="toggleFiltro()">Filtro</button>
+    <div class="filtro-panel" id="filtroPanel"></div>
+  </div>
 </div>
 <div class="status" id="statusLine"></div>
 
@@ -244,7 +259,7 @@
 
       statusLine.textContent = registros.length ? '' : 'Sin registros todavía.';
 
-      construirSelector();
+      construirFiltro();
     } catch(err){
       statusLine.textContent = 'Error cargando datos: ' + err.message;
       return;
@@ -294,8 +309,10 @@
       </div>`;
   }
 
-  function bloqueVariablesHTML(vals, n, tituloGrande, subtitulo){
+  function bloqueVariablesHTML(vals, n, tituloGrande, subtitulo, ocultarPromedios){
     const avg = (x) => (n ? (x / n) : 0).toLocaleString('es-CL', { maximumFractionDigits: 0 });
+    const avgHTML = (x) => ocultarPromedios ? '' : `<div class="trio-avg">${avg(x)}</div><div class="trio-avg-lbl">promedio</div>`;
+    const avgServiceHTML = (x) => ocultarPromedios ? '' : `<div class="s-avg">${avg(x)}</div><div class="s-avg-lbl">promedio</div>`;
     return `
       <div class="total-label">${tituloGrande}</div>
       <div class="total-sub">${subtitulo}</div>
@@ -305,20 +322,17 @@
         <div class="trio-col">
           <div class="trio-label">Total</div>
           <div class="trio-value">${vals.totales.toLocaleString('es-CL')}</div>
-          <div class="trio-avg">${avg(vals.totales)}</div>
-          <div class="trio-avg-lbl">promedio</div>
+          ${avgHTML(vals.totales)}
         </div>
         <div class="trio-col">
           <div class="trio-label">Providencia</div>
           <div class="trio-value">${vals.providencia.toLocaleString('es-CL')}</div>
-          <div class="trio-avg">${avg(vals.providencia)}</div>
-          <div class="trio-avg-lbl">promedio</div>
+          ${avgHTML(vals.providencia)}
         </div>
         <div class="trio-col">
           <div class="trio-label">Ñuñoa</div>
           <div class="trio-value">${vals.nunoa.toLocaleString('es-CL')}</div>
-          <div class="trio-avg">${avg(vals.nunoa)}</div>
-          <div class="trio-avg-lbl">promedio</div>
+          ${avgHTML(vals.nunoa)}
         </div>
       </div>
 
@@ -326,20 +340,17 @@
         <div class="service-box">
           <div class="s-label">Kit Agua-Fruta</div>
           <div class="s-total">${vals.kits.toLocaleString('es-CL')}</div>
-          <div class="s-avg">${avg(vals.kits)}</div>
-          <div class="s-avg-lbl">promedio</div>
+          ${avgServiceHTML(vals.kits)}
         </div>
         <div class="service-box">
           <div class="s-label">Bicicleta</div>
           <div class="s-total">${vals.bicicletas.toLocaleString('es-CL')}</div>
-          <div class="s-avg">${avg(vals.bicicletas)}</div>
-          <div class="s-avg-lbl">promedio</div>
+          ${avgServiceHTML(vals.bicicletas)}
         </div>
         <div class="service-box">
           <div class="s-label">Mecánica</div>
           <div class="s-total">${vals.mecanica.toLocaleString('es-CL')}</div>
-          <div class="s-avg">${avg(vals.mecanica)}</div>
-          <div class="s-avg-lbl">promedio</div>
+          ${avgServiceHTML(vals.mecanica)}
         </div>
       </div>
 
@@ -379,7 +390,7 @@
 
     let html = `
       <div class="slide" id="anchor-todas">
-        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL', `${registros.length} de 52 domingos`)}
+        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL TODAS LAS JORNADAS', `${registros.length} de 52 domingos`)}
       </div>
     `;
 
@@ -395,19 +406,12 @@
         </div>`;
     });
 
-    // --- Domingos (más reciente primero) ---
-    html += `
-      <div class="section-header" id="sec-domingos">
-        <div class="eyebrow">Registro por jornada</div>
-        <div class="title">Cada domingo</div>
-        <div class="sub">Más reciente primero</div>
-      </div>`;
-
-    [...registros].reverse().forEach(r => {
+    // --- Domingos (orden cronológico ascendente) ---
+    registros.forEach(r => {
       const semana = registros.findIndex(x => x.fecha === r.fecha) + 1;
       html += `
         <div class="slide" id="anchor-fecha-${r.fecha}">
-          ${bloqueVariablesHTML(r, 1, fechaBonita(r.fecha), `Semana ${semana} de 52`)}
+          ${bloqueVariablesHTML(r, 1, fechaBonita(r.fecha), `Semana ${semana} de 52`, true)}
           ${photosHTML(r)}
         </div>`;
     });
@@ -415,42 +419,39 @@
     content.innerHTML = html;
   }
 
-  // ---------- Selector = salto rápido, no filtro ----------
-  function construirSelector(){
-    const sel = document.getElementById('selector');
-    sel.innerHTML = '<option value="">Filtro</option>';
+  // ---------- Filtro = salto rápido, no filtro real ----------
+  function construirFiltro(){
+    const panel = document.getElementById('filtroPanel');
+    let html = `<button class="filtro-opt" onclick="irA('anchor-todas'); toggleFiltro(false)">📊 Total todas las jornadas</button>`;
 
-    const optTodas = document.createElement('option');
-    optTodas.value = 'anchor-todas';
-    optTodas.textContent = '📊 Total acumulado';
-    sel.appendChild(optTodas);
+    const meses = mesesDisponibles().filter(mes => registros.some(r => r.fecha.slice(0,7) === mes.key));
+    if (meses.length){
+      html += `<div class="filtro-group-label">Meses</div>`;
+      meses.forEach(mes => {
+        html += `<button class="filtro-opt" onclick="irA('anchor-mes-${mes.key}'); toggleFiltro(false)">${mes.label}</button>`;
+      });
+    }
 
-    const grpMeses = document.createElement('optgroup');
-    grpMeses.label = 'Meses';
-    mesesDisponibles().filter(mes => registros.some(r => r.fecha.slice(0,7) === mes.key)).forEach(mes => {
-      const opt = document.createElement('option');
-      opt.value = `anchor-mes-${mes.key}`;
-      opt.textContent = mes.label;
-      grpMeses.appendChild(opt);
-    });
-    sel.appendChild(grpMeses);
+    if (registros.length){
+      html += `<div class="filtro-group-label">Domingos</div>`;
+      [...registros].reverse().forEach(r => {
+        html += `<button class="filtro-opt" onclick="irA('anchor-fecha-${r.fecha}'); toggleFiltro(false)">${fechaBonita(r.fecha)}</button>`;
+      });
+    }
 
-    const grpDomingos = document.createElement('optgroup');
-    grpDomingos.label = 'Domingos';
-    [...registros].reverse().forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = `anchor-fecha-${r.fecha}`;
-      opt.textContent = fechaBonita(r.fecha);
-      grpDomingos.appendChild(opt);
-    });
-    sel.appendChild(grpDomingos);
-
-    sel.onchange = () => {
-      if (!sel.value) return;
-      irA(sel.value);
-      sel.value = '';
-    };
+    panel.innerHTML = html;
   }
+
+  function toggleFiltro(forzar){
+    const panel = document.getElementById('filtroPanel');
+    const abrir = forzar !== undefined ? forzar : !panel.classList.contains('open');
+    panel.classList.toggle('open', abrir);
+  }
+
+  document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.filtro-wrap');
+    if (wrap && !wrap.contains(e.target)) toggleFiltro(false);
+  });
 
   function irA(id){
     const el = document.getElementById(id);
