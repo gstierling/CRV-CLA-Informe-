@@ -29,10 +29,12 @@
   .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--orange); flex-shrink:0; animation:pulse 1.8s infinite; }
   @keyframes pulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
   .brand-sub{ font-weight:800; font-size:clamp(22px,4.4vw,28px); color:var(--text-dim); letter-spacing:3px; margin-top:2px; }
-  .filtro-wrap{ position:relative; margin-top:10px; }
+  .topbar-actions{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center; }
+  .filtro-wrap{ position:relative; }
   .filtro-btn{
     background:var(--bg-card); color:var(--text); border:1.5px solid var(--border); border-radius:999px;
-    padding:8px 24px; font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; cursor:pointer;
+    padding:8px 22px; font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; cursor:pointer;
+    text-decoration:none; display:inline-block; line-height:1.2;
   }
   .filtro-panel{
     display:none; position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%);
@@ -108,25 +110,39 @@
   .total-sub{ color:var(--text-dim); font-weight:700; font-size:12px; text-align:center; margin-top:2px; margin-bottom:4px; }
   .group-title{ font-weight:900; font-size:clamp(18px,3vw,23px); text-align:center; letter-spacing:1.5px; margin:14px 0 8px; color:var(--text); }
 
-  .trio-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin:4px 0 2px; text-align:center; }
-  .trio-col{ display:flex; flex-direction:column; align-items:center; }
+  .trio-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:4px 0 2px; text-align:center; }
+  .trio-box{
+    background:var(--bg-card2); border-radius:12px; padding:10px 6px;
+    display:flex; flex-direction:column; align-items:center;
+  }
   .trio-label{ font-size:10.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
   .trio-value{ font-size:clamp(26px,9vw,42px); font-weight:900; color:var(--text); line-height:1; }
   .trio-avg{ font-size:clamp(20px,4.7vw,26px); font-weight:800; color:var(--text-dim); margin-top:2px; line-height:1; }
   .trio-avg-lbl{ font-size:13px; color:var(--text-dim); font-weight:700; letter-spacing:.4px; margin-top:1px; }
 
-  .service-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0 2px; }
+  /* Caja "Total" invertida: fondo blanco, texto con los colores que son fondo en el resto del dashboard */
+  .trio-box-invert{ background:#ffffff; }
+  .trio-box-invert .trio-label{ color:rgba(8,63,70,.6); }
+  .trio-box-invert .trio-value{ color:var(--bg-card2); }
+  .trio-box-invert .trio-avg{ color:rgba(8,63,70,.62); }
+  .trio-box-invert .trio-avg-lbl{ color:rgba(8,63,70,.5); }
+
+  .service-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:20px 0 18px; }
   .service-box{ background:var(--bg-card2); border:1px solid var(--border); border-radius:12px; padding:10px 6px; text-align:center; }
   .service-box .s-label{ font-size:9.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.3px; margin-bottom:5px; line-height:1.25; }
-  .service-box .s-total{ font-size:clamp(18px,5vw,26px); font-weight:900; color:var(--teal); line-height:1; }
+  .service-box .s-total{ font-size:clamp(27px,7.5vw,39px); font-weight:900; color:var(--teal); line-height:1; }
   .service-box .s-avg{ font-size:17px; font-weight:700; color:var(--text-dim); margin-top:4px; }
   .service-box .s-avg-lbl{ font-size:12.5px; color:var(--text-dim); font-weight:700; letter-spacing:.3px; }
 
-  .afiliados-row{ display:flex; align-items:flex-end; justify-content:space-between; padding:8px 4px 2px; }
+  .afiliados-row{ display:flex; align-items:flex-start; justify-content:space-between; padding:2px 4px 2px; gap:12px; }
+  .af-col{ display:flex; flex-direction:column; }
+  .af-col-left{ align-items:flex-start; }
+  .af-col-right{ align-items:flex-end; }
+  .af-label{ font-size:10.5px; font-weight:800; color:var(--text-dim); letter-spacing:.4px; margin-bottom:3px; }
   .af-main{ font-size:clamp(26px,9vw,42px); font-weight:900; color:var(--teal); line-height:1; }
-  .af-right{ display:flex; flex-direction:column; align-items:flex-end; }
-  .af-right .val{ font-size:clamp(16px,3.2vw,22px); font-weight:800; color:var(--text-dim); line-height:1; }
-  .af-right .lbl{ font-size:9px; color:var(--text-dim); font-weight:700; text-transform:uppercase; margin-top:3px; letter-spacing:.4px; }
+  .af-avg{ font-size:clamp(20px,4.7vw,26px); font-weight:800; color:var(--text-dim); margin-top:2px; line-height:1; }
+  .af-avg-lbl{ font-size:13px; color:var(--text-dim); font-weight:700; letter-spacing:.4px; margin-top:1px; }
+  .af-secondary{ font-size:clamp(16px,3.2vw,22px); font-weight:800; color:var(--text-dim); line-height:1; }
 
   .week-badge{
     display:inline-block; background:var(--teal-dim); color:var(--teal); font-weight:800; font-size:10.5px;
@@ -147,9 +163,13 @@
 <div class="topbar">
   <div class="brand-title"><span class="live-dot"></span>CAJA LOS ANDES · CICLORECREOVÍA</div>
   <div class="brand-sub">INFORME</div>
-  <div class="filtro-wrap">
-    <button class="filtro-btn" id="filtroBtn" onclick="toggleFiltro()">Filtro</button>
-    <div class="filtro-panel" id="filtroPanel"></div>
+  <div class="topbar-actions">
+    <div class="filtro-wrap">
+      <button class="filtro-btn" id="filtroBtn" onclick="toggleFiltro()">Buscar</button>
+      <div class="filtro-panel" id="filtroPanel"></div>
+    </div>
+    <a class="filtro-btn" href="https://adobe.ly/4pnxOYh" target="_blank" rel="noopener noreferrer">Fotos</a>
+    <a class="filtro-btn" href="https://docs.google.com/spreadsheets/d/1Pecyuoo3t4elDs1TcoAN6V5mbA1nntpuFb_XFBFpRJk/edit?usp=sharing" target="_blank" rel="noopener noreferrer">BBDD</a>
   </div>
 </div>
 <div class="status" id="statusLine"></div>
@@ -313,23 +333,24 @@
     const avg = (x) => (n ? (x / n) : 0).toLocaleString('es-CL', { maximumFractionDigits: 0 });
     const avgHTML = (x) => ocultarPromedios ? '' : `<div class="trio-avg">${avg(x)}</div><div class="trio-avg-lbl">promedio</div>`;
     const avgServiceHTML = (x) => ocultarPromedios ? '' : `<div class="s-avg">${avg(x)}</div><div class="s-avg-lbl">promedio</div>`;
+    const avgAfHTML = (x) => ocultarPromedios ? '' : `<div class="af-avg">${avg(x)}</div><div class="af-avg-lbl">promedio</div>`;
     return `
       <div class="total-label">${tituloGrande}</div>
       <div class="total-sub">${subtitulo}</div>
 
       <div class="group-title">TRANSACCIONES</div>
       <div class="trio-grid">
-        <div class="trio-col">
+        <div class="trio-box trio-box-invert">
           <div class="trio-label">Total</div>
           <div class="trio-value">${vals.totales.toLocaleString('es-CL')}</div>
           ${avgHTML(vals.totales)}
         </div>
-        <div class="trio-col">
+        <div class="trio-box">
           <div class="trio-label">Providencia</div>
           <div class="trio-value">${vals.providencia.toLocaleString('es-CL')}</div>
           ${avgHTML(vals.providencia)}
         </div>
-        <div class="trio-col">
+        <div class="trio-box">
           <div class="trio-label">Ñuñoa</div>
           <div class="trio-value">${vals.nunoa.toLocaleString('es-CL')}</div>
           ${avgHTML(vals.nunoa)}
@@ -354,12 +375,16 @@
         </div>
       </div>
 
-      <div class="group-title">AFILIADOS</div>
+      <div class="group-title">AFILIACIÓN</div>
       <div class="afiliados-row">
-        <div class="af-main">${vals.afiliados.toLocaleString('es-CL')}</div>
-        <div class="af-right">
-          <div class="val">${vals.noAfiliados.toLocaleString('es-CL')}</div>
-          <div class="lbl">No afiliados</div>
+        <div class="af-col af-col-left">
+          <div class="af-label">Afiliados</div>
+          <div class="af-main">${vals.afiliados.toLocaleString('es-CL')}</div>
+          ${avgAfHTML(vals.afiliados)}
+        </div>
+        <div class="af-col af-col-right">
+          <div class="af-label">NO Afiliados</div>
+          <div class="af-secondary">${vals.noAfiliados.toLocaleString('es-CL')}</div>
         </div>
       </div>
     `;
@@ -390,7 +415,7 @@
 
     let html = `
       <div class="slide" id="anchor-todas">
-        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL JORNADAS', `${registros.length} de 52 domingos`)}
+        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL HASTA AHORA', `${registros.length} de 52 domingos`)}
       </div>
     `;
 
