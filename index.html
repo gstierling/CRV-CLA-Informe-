@@ -23,7 +23,7 @@
     display:flex; flex-direction:column; align-items:center; text-align:center; gap:2px;
   }
   .brand-title{
-    font-weight:900; font-size:clamp(15px,5.2vw,26px); color:var(--text); letter-spacing:.2px;
+    font-weight:900; font-size:clamp(12px,4.2vw,21px); color:var(--text); letter-spacing:.2px;
     line-height:1.2; white-space:nowrap; display:flex; align-items:center; gap:8px;
   }
   .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--orange); flex-shrink:0; animation:pulse 1.8s infinite; }
@@ -112,15 +112,15 @@
   .trio-col{ display:flex; flex-direction:column; align-items:center; }
   .trio-label{ font-size:10.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
   .trio-value{ font-size:clamp(26px,9vw,42px); font-weight:900; color:var(--text); line-height:1; }
-  .trio-avg{ font-size:clamp(16px,3.75vw,21px); font-weight:800; color:var(--text-dim); margin-top:2px; line-height:1; }
-  .trio-avg-lbl{ font-size:10.5px; color:var(--text-dim); font-weight:700; letter-spacing:.4px; margin-top:1px; }
+  .trio-avg{ font-size:clamp(20px,4.7vw,26px); font-weight:800; color:var(--text-dim); margin-top:2px; line-height:1; }
+  .trio-avg-lbl{ font-size:13px; color:var(--text-dim); font-weight:700; letter-spacing:.4px; margin-top:1px; }
 
   .service-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0 2px; }
   .service-box{ background:var(--bg-card2); border:1px solid var(--border); border-radius:12px; padding:10px 6px; text-align:center; }
   .service-box .s-label{ font-size:9.5px; font-weight:800; color:var(--text-dim); text-transform:uppercase; letter-spacing:.3px; margin-bottom:5px; line-height:1.25; }
   .service-box .s-total{ font-size:clamp(18px,5vw,26px); font-weight:900; color:var(--teal); line-height:1; }
-  .service-box .s-avg{ font-size:13.75px; font-weight:700; color:var(--text-dim); margin-top:4px; }
-  .service-box .s-avg-lbl{ font-size:10px; color:var(--text-dim); font-weight:700; letter-spacing:.3px; }
+  .service-box .s-avg{ font-size:17px; font-weight:700; color:var(--text-dim); margin-top:4px; }
+  .service-box .s-avg-lbl{ font-size:12.5px; color:var(--text-dim); font-weight:700; letter-spacing:.3px; }
 
   .afiliados-row{ display:flex; align-items:flex-end; justify-content:space-between; padding:8px 4px 2px; }
   .af-main{ font-size:clamp(26px,9vw,42px); font-weight:900; color:var(--teal); line-height:1; }
@@ -390,7 +390,7 @@
 
     let html = `
       <div class="slide" id="anchor-todas">
-        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL TODAS LAS JORNADAS', `${registros.length} de 52 domingos`)}
+        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL JORNADAS', `${registros.length} de 52 domingos`)}
       </div>
     `;
 
@@ -419,27 +419,43 @@
     content.innerHTML = html;
   }
 
-  // ---------- Filtro = salto rápido, no filtro real ----------
+  // ---------- Filtro = salto rápido ----------
+  function crearOpcion(texto, idDestino){
+    const btn = document.createElement('button');
+    btn.className = 'filtro-opt';
+    btn.textContent = texto;
+    btn.addEventListener('click', () => { irA(idDestino); toggleFiltro(false); });
+    return btn;
+  }
+
   function construirFiltro(){
     const panel = document.getElementById('filtroPanel');
-    let html = `<button class="filtro-opt" onclick="irA('anchor-todas'); toggleFiltro(false)">📊 Total todas las jornadas</button>`;
+    panel.innerHTML = '';
+
+    panel.appendChild(crearOpcion('📊 Total todas las jornadas', 'anchor-todas'));
 
     const meses = mesesDisponibles().filter(mes => registros.some(r => r.fecha.slice(0,7) === mes.key));
     if (meses.length){
-      html += `<div class="filtro-group-label">Meses</div>`;
+      const lbl = document.createElement('div');
+      lbl.className = 'filtro-group-label';
+      lbl.textContent = 'Meses';
+      panel.appendChild(lbl);
       meses.forEach(mes => {
-        html += `<button class="filtro-opt" onclick="irA('anchor-mes-${mes.key}'); toggleFiltro(false)">${mes.label}</button>`;
+        panel.appendChild(crearOpcion(mes.label, `anchor-mes-${mes.key}`));
       });
     }
 
     if (registros.length){
-      html += `<div class="filtro-group-label">Domingos</div>`;
+      const lbl = document.createElement('div');
+      lbl.className = 'filtro-group-label';
+      lbl.textContent = 'Domingos';
+      panel.appendChild(lbl);
       [...registros].reverse().forEach(r => {
-        html += `<button class="filtro-opt" onclick="irA('anchor-fecha-${r.fecha}'); toggleFiltro(false)">${fechaBonita(r.fecha)}</button>`;
+        panel.appendChild(crearOpcion(fechaBonita(r.fecha), `anchor-fecha-${r.fecha}`));
       });
     }
 
-    panel.innerHTML = html;
+    console.log('Filtro construido:', 1 + meses.length + registros.length, 'opciones (meses:', meses.length, ', domingos:', registros.length, ')');
   }
 
   function toggleFiltro(forzar){
