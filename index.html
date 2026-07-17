@@ -152,9 +152,13 @@
 
   .graf-block{ margin-top:18px; }
   .graf-block + .graf-block{ margin-top:20px; }
-  .graf-title{ font-size:13px; font-weight:800; color:var(--text); text-align:center; margin-bottom:10px; letter-spacing:.3px; }
+  .graf-title{ font-size:16px; font-weight:800; color:var(--text); text-align:center; margin-bottom:10px; letter-spacing:.3px; }
+  .graf-title .graf-pct{ font-weight:800; }
+  .graf-title .graf-pct.pos{ color:var(--teal); }
+  .graf-title .graf-pct.neg{ color:var(--orange); }
   .graf-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-  .graf-label{ width:42px; flex-shrink:0; font-size:12px; font-weight:800; color:var(--text-dim); }
+  .graf-label{ width:48px; flex-shrink:0; font-size:15px; font-weight:800; color:var(--text-dim); }
+  .graf-label.graf-label-real{ color:var(--teal); }
   .graf-track{ flex:1; height:16px; border-radius:8px; background:rgba(0,0,0,.28); overflow:hidden; }
   .graf-fill{ height:100%; border-radius:8px; transition:width .4s; }
   .graf-fill-meta{ background:var(--text-dim); opacity:.55; }
@@ -403,16 +407,19 @@
     const max = Math.max(meta, real, 1);
     const pctMeta = Math.max((meta / max) * 100, 2);
     const pctReal = Math.max((real / max) * 100, 2);
+    const diffPct = meta ? ((real - meta) / meta) * 100 : 0;
+    const signo = diffPct >= 0 ? '+' : '';
+    const claseDiff = diffPct >= 0 ? 'pos' : 'neg';
     return `
       <div class="graf-block">
-        <div class="graf-title">${titulo}</div>
+        <div class="graf-title">${titulo} <span class="graf-pct ${claseDiff}">(${signo}${diffPct.toLocaleString('es-CL', {maximumFractionDigits:1})}%)</span></div>
         <div class="graf-row">
           <div class="graf-label">Meta</div>
           <div class="graf-track"><div class="graf-fill graf-fill-meta" style="width:${pctMeta}%"></div></div>
           <div class="graf-value">${meta.toLocaleString('es-CL')}</div>
         </div>
         <div class="graf-row">
-          <div class="graf-label">Real</div>
+          <div class="graf-label graf-label-real">Real</div>
           <div class="graf-track"><div class="graf-fill graf-fill-real" style="width:${pctReal}%"></div></div>
           <div class="graf-value">${real.toLocaleString('es-CL')}</div>
         </div>
