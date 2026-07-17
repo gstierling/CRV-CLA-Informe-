@@ -108,7 +108,7 @@
 
   /* --- Nuevo layout de TOTAL --- */
   .total-label{ font-weight:900; font-size:clamp(26px,6vw,40px); color:var(--orange); letter-spacing:1px; text-align:center; text-transform:uppercase; }
-  .total-sub{ color:var(--text-dim); font-weight:700; font-size:12px; text-align:center; margin-top:2px; margin-bottom:4px; }
+  .total-sub{ color:var(--text-dim); font-weight:700; font-size:24px; text-align:center; margin-top:2px; margin-bottom:4px; }
   .group-title{ font-weight:900; font-size:clamp(22px,3.75vw,29px); text-align:center; letter-spacing:1.5px; margin:14px 0 8px; color:var(--text); }
 
   .trio-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:4px 0 2px; text-align:center; }
@@ -134,7 +134,7 @@
 
   .afiliados-row{ display:flex; align-items:flex-start; justify-content:space-between; padding:2px 4px 2px; gap:12px; }
   .af-col{ display:flex; flex-direction:column; }
-  .af-col-left{ align-items:center; text-align:center; flex:1; }
+  .af-col-left{ align-items:center; text-align:center; }
   .af-col-right{ align-items:flex-end; }
   .af-label{ font-size:10.5px; font-weight:800; color:var(--text-dim); letter-spacing:.4px; margin-bottom:3px; }
   .af-col-left .af-label{ text-transform:uppercase; }
@@ -149,6 +149,17 @@
 
   .empty-state{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-dim); text-align:center; padding:30px 20px; }
   .empty-state .big{ font-size:32px; }
+
+  .graf-block{ margin-top:18px; }
+  .graf-block + .graf-block{ margin-top:20px; }
+  .graf-title{ font-size:13px; font-weight:800; color:var(--text); text-align:center; margin-bottom:10px; letter-spacing:.3px; }
+  .graf-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .graf-label{ width:42px; flex-shrink:0; font-size:12px; font-weight:800; color:var(--text-dim); }
+  .graf-track{ flex:1; height:16px; border-radius:8px; background:rgba(0,0,0,.28); overflow:hidden; }
+  .graf-fill{ height:100%; border-radius:8px; transition:width .4s; }
+  .graf-fill-meta{ background:var(--text-dim); opacity:.55; }
+  .graf-fill-real{ background:var(--teal); }
+  .graf-value{ width:56px; flex-shrink:0; text-align:right; font-size:13px; font-weight:800; color:var(--text); }
 
   .footer-note{ text-align:center; color:var(--text-dim); font-size:11px; margin-top:18px; }
 
@@ -388,6 +399,27 @@
     `;
   }
 
+  function graficoBarrasHTML(titulo, meta, real){
+    const max = Math.max(meta, real, 1);
+    const pctMeta = Math.max((meta / max) * 100, 2);
+    const pctReal = Math.max((real / max) * 100, 2);
+    return `
+      <div class="graf-block">
+        <div class="graf-title">${titulo}</div>
+        <div class="graf-row">
+          <div class="graf-label">Meta</div>
+          <div class="graf-track"><div class="graf-fill graf-fill-meta" style="width:${pctMeta}%"></div></div>
+          <div class="graf-value">${meta.toLocaleString('es-CL')}</div>
+        </div>
+        <div class="graf-row">
+          <div class="graf-label">Real</div>
+          <div class="graf-track"><div class="graf-fill graf-fill-real" style="width:${pctReal}%"></div></div>
+          <div class="graf-value">${real.toLocaleString('es-CL')}</div>
+        </div>
+      </div>
+    `;
+  }
+
   function photosHTML(r){
     return r.foto1
       ? `<div class="photo-box"><img src="${r.foto1}" alt="Foto jornada ${r.fecha}" loading="lazy"></div>`
@@ -411,9 +443,19 @@
     const totalVals = {};
     VARS.forEach(v => totalVals[v.key] = registros.reduce((s,r) => s + r[v.key], 0));
 
+    const PROYECTO_INICIO = new Date('2026-07-05T00:00:00');
+    const hoy = new Date();
+    const diffDias = Math.floor((hoy - PROYECTO_INICIO) / (1000*60*60*24));
+    const domingosTranscurridos = diffDias < 0 ? 0 : Math.min(Math.floor(diffDias / 7) + 1, 52);
+
+    const metaTotales = 806 * domingosTranscurridos;
+    const metaKits = 560 * domingosTranscurridos;
+
     let html = `
       <div class="slide" id="anchor-todas">
         ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL HASTA AHORA', `${registros.length} de 52 domingos`)}
+        ${graficoBarrasHTML('Transacciones TOTALES', metaTotales, totalVals.totales)}
+        ${graficoBarrasHTML('Transacciones KITS', metaKits, totalVals.kits)}
       </div>
     `;
 
@@ -434,7 +476,7 @@
       const semana = registros.findIndex(x => x.fecha === r.fecha) + 1;
       html += `
         <div class="slide" id="anchor-fecha-${r.fecha}">
-          ${bloqueVariablesHTML(r, 1, fechaBonita(r.fecha), `Semana ${semana} de 52`, true)}
+          ${bloqueVariablesHTML(r, 1, fechaBonita(r.fecha), `Domingo ${semana} de 52`, true)}
           ${photosHTML(r)}
         </div>`;
     });
@@ -455,7 +497,7 @@
     const panel = document.getElementById('filtroPanel');
     panel.innerHTML = '';
 
-    panel.appendChild(crearOpcion('📊 Total todas las jornadas', 'anchor-todas'));
+    panel.appendChild(crearOpcion('Total todas las jornadas', 'anchor-todas'));
 
     const meses = mesesDisponibles().filter(mes => registros.some(r => r.fecha.slice(0,7) === mes.key));
     if (meses.length){
