@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fotos del Domingo · Caja Los Andes CRV</title>
+<title>Foto del Domingo · Caja Los Andes CRV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -54,13 +54,6 @@
   .dropzone .dz-text{ font-size:12px; color:var(--text-dim); font-weight:700; }
   .dropzone .dz-text b{ color:var(--teal); }
   .dropzone.has-image{ border-style:solid; border-color:var(--teal); padding:0; }
-  .dropzone.active{ box-shadow:0 0 0 3px rgba(0,212,170,.35); border-color:var(--teal); }
-  .zona-label{ display:flex; align-items:center; justify-content:space-between; }
-  .zona-badge{
-    font-size:10px; font-weight:800; color:var(--teal); background:rgba(0,212,170,.12);
-    padding:3px 8px; border-radius:20px; letter-spacing:.3px; display:none;
-  }
-  .zona-badge.show{ display:inline-block; }
   .dropzone img{ width:100%; height:100%; object-fit:cover; display:block; }
   .dropzone .dz-remove{
     position:absolute; top:8px; right:8px; background:rgba(13,17,23,.85); color:#fff; border:none;
@@ -72,34 +65,24 @@
 <body>
 <div class="card">
   <div class="eyebrow">Caja Los Andes · CicloRecreoVía</div>
-  <h1>Fotos del domingo</h1>
-  <div class="sub">Las 8 variables se calculan solas desde los registros de la estación. Esto es solo para dejar 1-2 fotos de esa jornada — arrástralas, elígelas desde tu celular/computador, o cópialas (Ctrl+C) y pégalas (Ctrl+V) directo en el recuadro. Puedes reenviar este formulario con la misma fecha para reemplazar una foto ya guardada.</div>
+  <h1>Foto del domingo</h1>
+  <div class="sub">Las 8 variables se calculan solas desde los registros de la estación. Esto es solo para dejar 1 foto de esa jornada — arrástrala, elígela desde tu celular/computador, o cópiala (Ctrl+C) y pégala (Ctrl+V) directo en el recuadro. Puedes reenviar este formulario con la misma fecha para reemplazar la foto ya guardada.</div>
 
   <label>Domingo correspondiente</label>
   <input type="date" id="fecha" required>
   <div class="hint" id="fechaHint"></div>
 
-  <div class="zona-label"><label style="margin:16px 0 6px">Foto 1</label><span class="zona-badge" id="badge1">se pega aquí</span></div>
-  <div class="dropzone" id="dz1" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path'){seleccionarZona(1);document.getElementById('input1').click();}">
+  <label>Foto del domingo</label>
+  <div class="dropzone" id="dz1" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path')document.getElementById('input1').click()">
     <div class="dz-empty" id="dzEmpty1">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-      <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
+      <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b><br>(o pégala con Ctrl+V)</div>
     </div>
     <input class="dz-input" type="file" id="input1" accept="image/*">
   </div>
   <div class="hint">Si es una foto de iPhone y no carga, revisa que esté en formato JPG (Ajustes → Cámara → Formatos → Más compatible).</div>
 
-  <div class="zona-label"><label style="margin:16px 0 6px">Foto 2 (opcional)</label><span class="zona-badge" id="badge2">se pega aquí</span></div>
-  <div class="dropzone" id="dz2" onclick="if(event.target===this||event.target.tagName==='svg'||event.target.tagName==='path'){seleccionarZona(2);document.getElementById('input2').click();}">
-    <div class="dz-empty" id="dzEmpty2">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-      <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
-    </div>
-    <input class="dz-input" type="file" id="input2" accept="image/*">
-  </div>
-  <div class="hint">Haz click en el recuadro que quieras llenar antes de pegar (Ctrl+V) — queda marcado con "se pega aquí".</div>
-
-  <button id="btnEnviar" onclick="enviar()">Guardar fotos de este domingo</button>
+  <button id="btnEnviar" onclick="enviar()">Guardar foto de este domingo</button>
   <div class="msg" id="msg"></div>
 </div>
 
@@ -124,8 +107,8 @@
   fechaInput.addEventListener('change', actualizarHint);
   actualizarHint();
 
-  // ---------- Manejo de las 2 zonas de arrastrar-y-soltar ----------
-  const estado = { 1: null, 2: null }; // guarda el dataURL (base64) ya comprimido de cada foto
+  // ---------- Manejo de la zona de arrastrar-y-soltar ----------
+  let fotoData = null; // dataURL (base64) ya comprimido
 
   function comprimirImagen(file, maxWidth = 1600, calidad = 0.82){
     return new Promise((resolve, reject) => {
@@ -148,65 +131,49 @@
     });
   }
 
-  async function manejarArchivo(n, file){
+  async function manejarArchivo(file){
     if (!file || !file.type.startsWith('image/')) return;
-    const dz = document.getElementById('dz' + n);
+    const dz = document.getElementById('dz1');
     try {
       const dataUrl = await comprimirImagen(file);
-      estado[n] = dataUrl;
+      fotoData = dataUrl;
       dz.classList.add('has-image');
-      dz.innerHTML = `<img src="${dataUrl}" alt="Foto ${n}"><button class="dz-remove" onclick="quitarFoto(event,${n})">✕</button>`;
+      dz.innerHTML = `<img src="${dataUrl}" alt="Foto del domingo"><button class="dz-remove" onclick="quitarFoto(event)">✕</button>`;
     } catch(err){
-      alert('Foto ' + n + ': ' + err.message);
+      alert(err.message);
     }
   }
 
-  function quitarFoto(ev, n){
+  function quitarFoto(ev){
     ev.stopPropagation();
-    estado[n] = null;
-    const dz = document.getElementById('dz' + n);
+    fotoData = null;
+    const dz = document.getElementById('dz1');
     dz.classList.remove('has-image');
     dz.innerHTML = `
-      <div class="dz-empty" id="dzEmpty${n}">
+      <div class="dz-empty" id="dzEmpty1">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
-        <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b></div>
+        <div class="dz-text">Arrastra la foto aquí<br>o <b>haz click para elegir</b><br>(o pégala con Ctrl+V)</div>
       </div>
-      <input class="dz-input" type="file" id="input${n}" accept="image/*">`;
-    document.getElementById('input' + n).addEventListener('change', (e) => manejarArchivo(n, e.target.files[0]));
+      <input class="dz-input" type="file" id="input1" accept="image/*">`;
+    document.getElementById('input1').addEventListener('change', (e) => manejarArchivo(e.target.files[0]));
   }
 
-  // ---------- Zona activa: define a cuál de las 2 fotos va un Ctrl+V ----------
-  let zonaActiva = 1;
-  function seleccionarZona(n){
-    zonaActiva = n;
-    [1, 2].forEach(i => {
-      document.getElementById('dz' + i).classList.toggle('active', i === n);
-      document.getElementById('badge' + i).classList.toggle('show', i === n);
-    });
-  }
-  seleccionarZona(1); // Foto 1 activa por defecto al abrir el formulario
-
-  [1, 2].forEach(n => {
-    const dz = document.getElementById('dz' + n);
-    const input = document.getElementById('input' + n);
-    input.addEventListener('change', (e) => manejarArchivo(n, e.target.files[0]));
-    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); seleccionarZona(n); });
-    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-    dz.addEventListener('drop', (e) => {
-      e.preventDefault(); dz.classList.remove('dragover');
-      seleccionarZona(n);
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) manejarArchivo(n, e.dataTransfer.files[0]);
-    });
-    // El botón "✕" también selecciona su zona, para que un pegado posterior reemplace ahí mismo
-    dz.addEventListener('mousedown', () => seleccionarZona(n));
+  const dz = document.getElementById('dz1');
+  const input = document.getElementById('input1');
+  input.addEventListener('change', (e) => manejarArchivo(e.target.files[0]));
+  dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', (e) => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) manejarArchivo(e.dataTransfer.files[0]);
   });
 
-  // Un solo lugar que escucha Ctrl+V en toda la página: siempre va a la zona activa (marcada "se pega aquí")
+  // Al haber una sola zona, cualquier Ctrl+V en la página va directo ahí.
   window.addEventListener('paste', (e) => {
     const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
     if (!item) return;
     e.preventDefault();
-    manejarArchivo(zonaActiva, item.getAsFile());
+    manejarArchivo(item.getAsFile());
   });
 
   // ---------- Envío ----------
@@ -217,14 +184,12 @@
 
     if (!fechaInput.value){ msg.className='msg err'; msg.textContent='Selecciona la fecha del domingo.'; return; }
     if (ENDPOINT_URL.indexOf('PENDIENTE') === 0){ msg.className='msg err'; msg.textContent='Falta conectar ENDPOINT_URL en el código.'; return; }
-    if (!estado[1] && !estado[2]){ msg.className='msg err'; msg.textContent='Agrega al menos una foto.'; return; }
+    if (!fotoData){ msg.className='msg err'; msg.textContent='Agrega una foto.'; return; }
 
-    const payload = { fecha: fechaInput.value, foto1: estado[1], foto2: estado[2] };
-    console.log('Enviando fotos para', payload.fecha, '— tamaños (KB):',
-      payload.foto1 ? Math.round(payload.foto1.length/1024) : 0,
-      payload.foto2 ? Math.round(payload.foto2.length/1024) : 0);
+    const payload = { fecha: fechaInput.value, foto1: fotoData };
+    console.log('Enviando foto para', payload.fecha, '— tamaño (KB):', Math.round(payload.foto1.length/1024));
 
-    btn.disabled = true; btn.textContent = 'Subiendo fotos...';
+    btn.disabled = true; btn.textContent = 'Subiendo foto...';
     const avisoLento = setTimeout(() => {
       msg.className = 'msg'; msg.style.display = 'block'; msg.style.color = 'var(--text-dim)';
       msg.textContent = 'Sigue subiendo… si esto tarda más de 1 minuto, puede que el script necesite volver a autorizar el acceso a Google Drive (avísame).';
@@ -245,8 +210,8 @@
       if (data.status === 'ok'){
         msg.className = 'msg ok';
         msg.textContent = data.action === 'actualizado'
-          ? '✓ Fotos actualizadas para el ' + payload.fecha
-          : '✓ Fotos guardadas para el ' + payload.fecha;
+          ? '✓ Foto actualizada para el ' + payload.fecha
+          : '✓ Foto guardada para el ' + payload.fecha;
         if (data.advertencias && data.advertencias.length){
           msg.textContent += ' — pero hubo un problema: ' + data.advertencias.join(' / ');
           msg.className = 'msg err';
@@ -259,7 +224,7 @@
       console.error(err);
     } finally {
       clearTimeout(avisoLento);
-      btn.disabled = false; btn.textContent = 'Guardar fotos de este domingo';
+      btn.disabled = false; btn.textContent = 'Guardar foto de este domingo';
     }
   }
 </script>
