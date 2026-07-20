@@ -450,13 +450,8 @@
     const totalVals = {};
     VARS.forEach(v => totalVals[v.key] = registros.reduce((s,r) => s + r[v.key], 0));
 
-    const PROYECTO_INICIO = new Date('2026-07-05T00:00:00');
-    const hoy = new Date();
-    const diffDias = Math.floor((hoy - PROYECTO_INICIO) / (1000*60*60*24));
-    const domingosTranscurridos = diffDias < 0 ? 0 : Math.min(Math.floor(diffDias / 7) + 1, 52);
-
-    const metaTotales = 806 * domingosTranscurridos;
-    const metaKits = 560 * domingosTranscurridos;
+    const metaTotales = 806 * registros.length;
+    const metaKits = 560 * registros.length;
 
     let html = `
       <div class="slide" id="anchor-todas">
