@@ -151,23 +151,26 @@
   .empty-state .big{ font-size:32px; }
 
   .mega-header{
-    font-weight:900; font-size:clamp(26px,6vw,40px); color:var(--orange); letter-spacing:1px;
+    font-weight:900; font-size:clamp(31px,7.2vw,48px); color:var(--text); letter-spacing:1px;
     text-align:center; text-transform:uppercase; margin:28px 0 4px;
   }
+
+  .slide-domingo{ border-color:rgba(255,255,255,.32); }
 
   .graf-block{ margin-top:18px; }
   .graf-block + .graf-block{ margin-top:20px; }
   .graf-title{ font-size:16px; font-weight:800; color:var(--text); text-align:center; margin-bottom:10px; letter-spacing:.3px; }
-  .graf-title .graf-pct{ font-weight:800; }
-  .graf-title .graf-pct.pos{ color:var(--teal); }
-  .graf-title .graf-pct.neg{ color:var(--orange); }
   .graf-row{ margin-bottom:10px; }
-  .graf-row-label{ font-size:13px; font-weight:800; color:var(--text-dim); margin-bottom:4px; }
+  .graf-row-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; }
+  .graf-row-label{ font-size:13px; font-weight:800; color:var(--text-dim); }
   .graf-row-label.graf-label-real{ color:var(--teal); }
+  .graf-row-pct{ font-weight:800; font-size:12px; }
+  .graf-row-pct.pos{ color:var(--teal); }
+  .graf-row-pct.neg{ color:var(--orange); }
   .graf-row-bar{ display:flex; align-items:center; gap:8px; }
   .graf-track{ flex:1; height:16px; border-radius:8px; background:rgba(0,0,0,.28); overflow:hidden; }
   .graf-fill{ height:100%; border-radius:8px; transition:width .4s; }
-  .graf-fill-meta{ background:var(--text-dim); opacity:.55; }
+  .graf-fill-meta{ background:var(--text-dim); opacity:.8; }
   .graf-fill-real{ background:var(--teal); }
   .graf-value{ width:56px; flex-shrink:0; text-align:right; font-size:13px; font-weight:800; color:var(--text); }
 
@@ -348,7 +351,7 @@
       </div>`;
   }
 
-  function bloqueVariablesHTML(vals, n, tituloGrande, subtitulo, ocultarPromedios){
+  function bloqueVariablesHTML(vals, n, tituloGrande, subtitulo, ocultarPromedios, graficosHTML){
     const avg = (x) => (n ? (x / n) : 0).toLocaleString('es-CL', { maximumFractionDigits: 0 });
     const avgHTML = (x) => ocultarPromedios ? '' : `<div class="trio-avg">${avg(x)} prom.</div>`;
     const avgServiceHTML = (x) => ocultarPromedios ? '' : `<div class="s-avg">${avg(x)} prom.</div>`;
@@ -394,6 +397,8 @@
         </div>
       </div>
 
+      ${graficosHTML || ''}
+
       <div class="group-title">AFILIACIÓN</div>
       <div class="afiliados-row">
         <div class="af-col af-col-left">
@@ -414,30 +419,42 @@
     const pctMT = Math.max((metaTranscurridos / max) * 100, 2);
     const pctME = Math.max((metaEjecutados / max) * 100, 2);
     const pctReal = Math.max((real / max) * 100, 2);
-    // El % del título compara Real contra la Meta de domingos ejecutados (misma base de domingos que Real)
-    const diffPct = metaEjecutados ? ((real - metaEjecutados) / metaEjecutados) * 100 : 0;
-    const signo = diffPct >= 0 ? '+' : '';
-    const claseDiff = diffPct >= 0 ? 'pos' : 'neg';
     const fmt = (n) => n.toLocaleString('es-CL');
+    // Porcentaje de cada barra Meta comparado contra el Real
+    const pctVsReal = (meta) => meta ? ((real - meta) / meta) * 100 : 0;
+    const pctHTML = (meta) => {
+      const diff = pctVsReal(meta);
+      const signo = diff >= 0 ? '+' : '';
+      const clase = diff >= 0 ? 'pos' : 'neg';
+      return `<span class="graf-row-pct ${clase}">(${signo}${diff.toLocaleString('es-CL', {maximumFractionDigits:1})}%)</span>`;
+    };
     return `
       <div class="graf-block">
-        <div class="graf-title">${titulo} <span class="graf-pct ${claseDiff}">(${signo}${diffPct.toLocaleString('es-CL', {maximumFractionDigits:1})}%)</span></div>
+        <div class="graf-title">${titulo}</div>
         <div class="graf-row">
-          <div class="graf-row-label">Meta domingos transcurridos</div>
+          <div class="graf-row-head">
+            <div class="graf-row-label">Meta domingos transcurridos</div>
+            ${pctHTML(metaTranscurridos)}
+          </div>
           <div class="graf-row-bar">
             <div class="graf-track"><div class="graf-fill graf-fill-meta" style="width:${pctMT}%"></div></div>
             <div class="graf-value">${fmt(metaTranscurridos)}</div>
           </div>
         </div>
         <div class="graf-row">
-          <div class="graf-row-label">Meta domingos ejecutados</div>
+          <div class="graf-row-head">
+            <div class="graf-row-label">Meta domingos ejecutados</div>
+            ${pctHTML(metaEjecutados)}
+          </div>
           <div class="graf-row-bar">
             <div class="graf-track"><div class="graf-fill graf-fill-meta" style="width:${pctME}%"></div></div>
             <div class="graf-value">${fmt(metaEjecutados)}</div>
           </div>
         </div>
         <div class="graf-row">
-          <div class="graf-row-label graf-label-real">Real</div>
+          <div class="graf-row-head">
+            <div class="graf-row-label graf-label-real">Real</div>
+          </div>
           <div class="graf-row-bar">
             <div class="graf-track"><div class="graf-fill graf-fill-real" style="width:${pctReal}%"></div></div>
             <div class="graf-value">${fmt(real)}</div>
@@ -480,11 +497,14 @@
     const metaTotalesEjecutados = 806 * registros.length;
     const metaKitsEjecutados = 560 * registros.length;
 
+    const graficosTotal = `
+        ${graficoBarrasHTML('Transacciones TOTALES (Kits + Servicios + Mecánica)', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales)}
+        ${graficoBarrasHTML('Transacciones KITS', metaKitsTranscurridos, metaKitsEjecutados, totalVals.kits)}
+    `;
+
     let html = `
       <div class="slide" id="anchor-todas">
-        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL HASTA AHORA', `${registros.length} de 52 domingos`)}
-        ${graficoBarrasHTML('Transacciones TOTALES', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales)}
-        ${graficoBarrasHTML('Transacciones KITS', metaKitsTranscurridos, metaKitsEjecutados, totalVals.kits)}
+        ${bloqueVariablesHTML(totalVals, registros.length, 'TOTAL HASTA AHORA', `${registros.length} de 52 domingos`, false, graficosTotal)}
       </div>
     `;
 
@@ -506,7 +526,7 @@
     registros.forEach(r => {
       const semana = registros.findIndex(x => x.fecha === r.fecha) + 1;
       html += `
-        <div class="slide" id="anchor-fecha-${r.fecha}">
+        <div class="slide slide-domingo" id="anchor-fecha-${r.fecha}">
           ${bloqueVariablesHTML(r, 1, fechaBonita(r.fecha), `Domingo ${semana} de 52`, true)}
           ${photosHTML(r)}
         </div>`;
