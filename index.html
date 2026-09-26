@@ -157,6 +157,7 @@
   }
 
   .slide-domingo{ border-width:2.5px; border-color:rgba(255,255,255,.55); }
+  .slide-mes{ border-width:2.5px; border-color:var(--orange); }
 
   .graf-block{ margin-top:18px; }
   .graf-block + .graf-block{ margin-top:20px; }
@@ -189,7 +190,7 @@
   <div class="brand-sub">INFORME</div>
   <div class="topbar-actions">
     <div class="filtro-wrap">
-      <button class="filtro-btn" id="filtroBtn" onclick="toggleFiltro()">Buscar</button>
+      <button class="filtro-btn" id="filtroBtn" onclick="toggleFiltro()">Buscar fecha</button>
       <div class="filtro-panel" id="filtroPanel"></div>
     </div>
     <a class="filtro-btn" href="https://adobe.ly/4eWdU1z" target="_blank" rel="noopener noreferrer">Fotos</a>
@@ -501,7 +502,7 @@
     const metaKitsEjecutados = 560 * registros.length;
 
     const graficosTotal = `
-        ${graficoBarrasHTML('Transacciones (KITS + SERVICIOS + MECÁNICA)', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales, domingosTranscurridos, registros.length)}
+        ${graficoBarrasHTML('Transacciones KITS + SERVICIOS + MECÁNICA', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales, domingosTranscurridos, registros.length)}
         ${graficoBarrasHTML('Transacciones KITS', metaKitsTranscurridos, metaKitsEjecutados, totalVals.kits, domingosTranscurridos, registros.length)}
     `;
 
@@ -519,7 +520,7 @@
       const v = {};
       VARS.forEach(x => v[x.key] = delMes.reduce((s,r) => s + r[x.key], 0));
       html += `
-        <div class="slide" id="anchor-mes-${mes.key}">
+        <div class="slide slide-mes" id="anchor-mes-${mes.key}">
           ${bloqueVariablesHTML(v, delMes.length, mes.label, `${delMes.length} domingo(s) registrado(s)`)}
         </div>`;
     });
