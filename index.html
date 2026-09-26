@@ -416,7 +416,7 @@
     `;
   }
 
-  function graficoBarrasHTML(titulo, metaTranscurridos, metaEjecutados, real){
+  function graficoBarrasHTML(titulo, metaTranscurridos, metaEjecutados, real, domingosTranscurridos, domingosEjecutados){
     const max = Math.max(metaTranscurridos, metaEjecutados, real, 1);
     const pctMT = Math.max((metaTranscurridos / max) * 100, 2);
     const pctME = Math.max((metaEjecutados / max) * 100, 2);
@@ -436,7 +436,7 @@
         <div class="graf-title">${titulo}</div>
         <div class="graf-row">
           <div class="graf-row-head">
-            <div class="graf-row-label">Meta domingos transcurridos</div>
+            <div class="graf-row-label">Meta ${domingosTranscurridos} domingos transcurridos</div>
             ${pctHTML(metaTranscurridos)}
           </div>
           <div class="graf-row-bar">
@@ -446,7 +446,7 @@
         </div>
         <div class="graf-row">
           <div class="graf-row-head">
-            <div class="graf-row-label">Meta domingos ejecutados</div>
+            <div class="graf-row-label">Meta ${domingosEjecutados} domingos ejecutados</div>
             ${pctHTML(metaEjecutados)}
           </div>
           <div class="graf-row-bar">
@@ -456,7 +456,7 @@
         </div>
         <div class="graf-row">
           <div class="graf-row-head">
-            <div class="graf-row-label graf-label-real">Real</div>
+            <div class="graf-row-label graf-label-real">Real transacciones concretadas</div>
           </div>
           <div class="graf-row-bar">
             <div class="graf-track"><div class="graf-fill graf-fill-real" style="width:${pctReal}%"></div></div>
@@ -501,8 +501,8 @@
     const metaKitsEjecutados = 560 * registros.length;
 
     const graficosTotal = `
-        ${graficoBarrasHTML('Transacciones TOTALES (Kits+Servicios+Mecánica)', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales)}
-        ${graficoBarrasHTML('Transacciones KITS', metaKitsTranscurridos, metaKitsEjecutados, totalVals.kits)}
+        ${graficoBarrasHTML('Transacciones (KITS + SERVICIOS + MECÁNICA)', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales, domingosTranscurridos, registros.length)}
+        ${graficoBarrasHTML('Transacciones KITS', metaKitsTranscurridos, metaKitsEjecutados, totalVals.kits, domingosTranscurridos, registros.length)}
     `;
 
     let html = `
