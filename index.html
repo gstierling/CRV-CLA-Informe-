@@ -12,6 +12,7 @@
     --text:#ffffff; --text-dim:rgba(255,255,255,.72);
     --orange:#f97316; --orange-dim:rgba(249,115,22,.18);
     --teal:#ffd166; --teal-dim:rgba(255,209,102,.15);
+    --green:#22c55e; --red-pale:#f8938a;
   }
   *{box-sizing:border-box;}
   html{ scroll-behavior:smooth; }
@@ -155,22 +156,23 @@
     text-align:center; text-transform:uppercase; margin:28px 0 4px;
   }
 
-  .slide-domingo{ border-color:rgba(255,255,255,.32); }
+  .slide-domingo{ border-width:2.5px; border-color:rgba(255,255,255,.55); }
 
   .graf-block{ margin-top:18px; }
   .graf-block + .graf-block{ margin-top:20px; }
-  .graf-title{ font-size:16px; font-weight:800; color:var(--text); text-align:center; margin-bottom:10px; letter-spacing:.3px; }
+  .graf-title{ font-size:clamp(13px,3.6vw,16px); font-weight:800; color:var(--text); text-align:center; margin-bottom:10px; letter-spacing:.3px; white-space:nowrap; }
   .graf-row{ margin-bottom:10px; }
-  .graf-row-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; }
+  .graf-row-head{ display:flex; align-items:baseline; gap:6px; margin-bottom:4px; }
   .graf-row-label{ font-size:13px; font-weight:800; color:var(--text-dim); }
   .graf-row-label.graf-label-real{ color:var(--teal); }
   .graf-row-pct{ font-weight:800; font-size:12px; }
-  .graf-row-pct.pos{ color:var(--teal); }
-  .graf-row-pct.neg{ color:var(--orange); }
+  .graf-row-pct.pos{ color:var(--green); }
+  .graf-row-pct.neg{ color:var(--red-pale); }
   .graf-row-bar{ display:flex; align-items:center; gap:8px; }
   .graf-track{ flex:1; height:16px; border-radius:8px; background:rgba(0,0,0,.28); overflow:hidden; }
   .graf-fill{ height:100%; border-radius:8px; transition:width .4s; }
-  .graf-fill-meta{ background:var(--text-dim); opacity:.8; }
+  .graf-fill-pos{ background:var(--green); }
+  .graf-fill-neg{ background:var(--red-pale); }
   .graf-fill-real{ background:var(--teal); }
   .graf-value{ width:56px; flex-shrink:0; text-align:right; font-size:13px; font-weight:800; color:var(--text); }
 
@@ -420,13 +422,14 @@
     const pctME = Math.max((metaEjecutados / max) * 100, 2);
     const pctReal = Math.max((real / max) * 100, 2);
     const fmt = (n) => n.toLocaleString('es-CL');
-    // Porcentaje de cada barra Meta comparado contra el Real
+    // Comparación de cada barra Meta contra el Real: sobre meta = verde, bajo meta = rojo pálido
     const pctVsReal = (meta) => meta ? ((real - meta) / meta) * 100 : 0;
+    const claseMeta = (meta) => pctVsReal(meta) >= 0 ? 'pos' : 'neg';
+    const fillClaseMeta = (meta) => pctVsReal(meta) >= 0 ? 'graf-fill-pos' : 'graf-fill-neg';
     const pctHTML = (meta) => {
       const diff = pctVsReal(meta);
       const signo = diff >= 0 ? '+' : '';
-      const clase = diff >= 0 ? 'pos' : 'neg';
-      return `<span class="graf-row-pct ${clase}">(${signo}${diff.toLocaleString('es-CL', {maximumFractionDigits:1})}%)</span>`;
+      return `<span class="graf-row-pct ${claseMeta(meta)}">(${signo}${diff.toLocaleString('es-CL', {maximumFractionDigits:1})}%)</span>`;
     };
     return `
       <div class="graf-block">
@@ -437,7 +440,7 @@
             ${pctHTML(metaTranscurridos)}
           </div>
           <div class="graf-row-bar">
-            <div class="graf-track"><div class="graf-fill graf-fill-meta" style="width:${pctMT}%"></div></div>
+            <div class="graf-track"><div class="graf-fill ${fillClaseMeta(metaTranscurridos)}" style="width:${pctMT}%"></div></div>
             <div class="graf-value">${fmt(metaTranscurridos)}</div>
           </div>
         </div>
@@ -447,7 +450,7 @@
             ${pctHTML(metaEjecutados)}
           </div>
           <div class="graf-row-bar">
-            <div class="graf-track"><div class="graf-fill graf-fill-meta" style="width:${pctME}%"></div></div>
+            <div class="graf-track"><div class="graf-fill ${fillClaseMeta(metaEjecutados)}" style="width:${pctME}%"></div></div>
             <div class="graf-value">${fmt(metaEjecutados)}</div>
           </div>
         </div>
@@ -498,7 +501,7 @@
     const metaKitsEjecutados = 560 * registros.length;
 
     const graficosTotal = `
-        ${graficoBarrasHTML('Transacciones TOTALES (Kits + Servicios + Mecánica)', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales)}
+        ${graficoBarrasHTML('Transacciones TOTALES (Kits+Servicios+Mecánica)', metaTotalesTranscurridos, metaTotalesEjecutados, totalVals.totales)}
         ${graficoBarrasHTML('Transacciones KITS', metaKitsTranscurridos, metaKitsEjecutados, totalVals.kits)}
     `;
 
